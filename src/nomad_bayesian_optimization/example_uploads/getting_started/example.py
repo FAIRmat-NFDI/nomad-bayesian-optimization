@@ -107,7 +107,7 @@ def get_samples(recommendations):
 
 i = 0
 result = 0
-threshold = 1
+threshold = 0.1
 while abs(refractive_index_target - result) > threshold:
     df = campaign.recommend(batch_size=1)
     print('New recommendation:')
@@ -136,6 +136,7 @@ bopt.normalize(archive, None)
 
 with open('archive.json', 'w') as fout:
     json.dump(archive.m_to_dict(), fout, indent=2)
+
 # print(bopt.search_space)
 # campaign_dict = campaign.to_dict()
 # recommendation = deserialize_dataframe(campaign_dict['_cached_recommendation'])

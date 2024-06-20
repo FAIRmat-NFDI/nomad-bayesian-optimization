@@ -81,13 +81,21 @@ class BayesianOptimization(PlotSection, Schema):
 
         df = deserialize_dataframe(self.optimization)
         target_name = self.objective.target.name
-        first_line = px.scatter(x=df['FitNr'], y=df[target_name])
-        figure1 = make_subplots(rows=1, cols=2, shared_yaxes=True)
-        figure1.add_trace(first_line.data[0], row=1, col=1)
-        figure1.update_layout(height=400, width=716, title_text='Optimization results')
-        self.figures.append(
-            PlotlyFigure(label='Optimization results', figure=figure1.to_plotly_json())
+        first_line = px.scatter(
+            df,
+            x='BatchNr',
+            y=target_name,
+            title='Optimization result',
+            labels={
+                'target_name': 'Refractive index',
+                'BatchNr': 'Iteration',
+            },
         )
+        figure1 = make_subplots(rows=1, cols=1, shared_yaxes=True)
+        figure1.add_trace(first_line.data[0], row=1, col=1)
+        self.figures = [
+            PlotlyFigure(label='Optimization results', figure=figure1.to_plotly_json())
+        ]
 
 
 m_package.__init_metainfo__()

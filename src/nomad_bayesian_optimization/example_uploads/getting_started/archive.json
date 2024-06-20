@@ -1,14 +1,14 @@
 {
   "data": {
     "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization",
-    "optimization": "gASVvwMAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsBhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZSMB1NpbGljb26UYXSUYowIYnVpbHRpbnOUjAVzbGljZZSTlEsASwFLAYeUUpRLAoeUUpRoC2gOaBFLAIWUaBOHlFKUKEsBSwNLAYaUaBiMAmY4lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGKJQxgL2B0UJzZ/QFfdIlBVafc/4aCIaXfX/D+UdJRiaCNLAUsESwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSwGGlGgYjAJpOJSJiIeUUpQoSwNoL05OTkr/////Sv////9LAHSUYolDCAEAAAAAAAAAlHSUYmgjSwRLBUsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLAUsBhpRoLolDCAAAAAAAAPh/lHSUYmgjSwVLBksBh5RSlEsCh5RSlHSUXZQojBhwYW5kYXMuY29yZS5pbmRleGVzLmJhc2WUjApfbmV3X0luZGV4lJOUaFGMBUluZGV4lJOUfZQojARkYXRhlGgOaBFLAIWUaBOHlFKUKEsBSwaFlGgbiV2UKIwJc3Vic3RyYXRllIwLdGVtcGVyYXR1cmWUjA1nYXNfZmxvd19yYXRllIwQcmVmcmFjdGl2ZV9pbmRleJSMB0JhdGNoTnKUjAVGaXROcpRldJRijARuYW1llE51hpRSlGhTjBlwYW5kYXMuY29yZS5pbmRleGVzLnJhbmdllIwKUmFuZ2VJbmRleJSTlH2UKGhkTowFc3RhcnSUSwCMBHN0b3CUSwGMBHN0ZXCUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
+    "optimization": "gASVSgUAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsKhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojA9TaWxpY29uIGNhcmJpZGWUjAdTaWxpY29ulGgfaB9oH2ggaB9oH2gfaB9ldJRijAhidWlsdGluc5SMBXNsaWNllJOUSwBLAUsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLA0sKhpRoGIwCZjiUiYiHlFKUKEsDjAE8lE5OTkr/////Sv////9LAHSUYolD8KJVh/vz7nlAAADX0X0UgEAfTfHEIS5+QIQmuOeJaXVAAAAAAADAckDzon6kUXR4QAAAAAAAwHJAwzBUXtC5dkCF57UEBA93QIl4rX+x5XdABUb0VzBj4T9mZmY84OERQJqZmZmZmck/3bAGmdt17D/8RTce6JwPQJqZmZmZmck/mpmZmZmZyT/1UvIluu30P3RJW7ioyPY/6r5PuSDG/T+AA0ezKKMAQDxcSfwk3+s/MEEd5lfj+D9A8eG6dwEBQChxh03nmvU/Tct136qL+j++J/4XvQP3P8xkCrFlbQNABK0T2ufsA0AL8+lzFPgEQJR0lGJoJEsBSwRLAYeUUpRLAoeUUpRoC2gOaBFLAIWUaBOHlFKUKEsBSwFLCoaUaBiMAmk4lImIh5RSlChLA2gwTk5OSv////9K/////0sAdJRiiUNQAQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAFAAAAAAAAAAYAAAAAAAAABwAAAAAAAAAIAAAAAAAAAAkAAAAAAAAACgAAAAAAAACUdJRiaCRLBEsFSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSwqGlGgviUNQAAAAAAAA8D8AAAAAAAAAQAAAAAAAAAhAAAAAAAAAEEAAAAAAAAAUQAAAAAAAABhAAAAAAAAAHEAAAAAAAAAgQAAAAAAAACJAAAAAAAAA+H+UdJRiaCRLBUsGSwGHlFKUSwKHlFKUdJRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoUowFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLBoWUaBuJXZQojAlzdWJzdHJhdGWUjAt0ZW1wZXJhdHVyZZSMDWdhc19mbG93X3JhdGWUjBByZWZyYWN0aXZlX2luZGV4lIwHQmF0Y2hOcpSMBUZpdE5ylGV0lGKMBG5hbWWUTnWGlFKUaFSMGXBhbmRhcy5jb3JlLmluZGV4ZXMucmFuZ2WUjApSYW5nZUluZGV4lJOUfZQoaGVOjAVzdGFydJRLAIwEc3RvcJRLCowEc3RlcJRLAXWGlFKUZYaUUpSMBF90eXCUjAlkYXRhZnJhbWWUjAlfbWV0YWRhdGGUXZSMBWF0dHJzlH2UjAZfZmxhZ3OUfZSMF2FsbG93c19kdXBsaWNhdGVfbGFiZWxzlIhzdWIu",
     "figures": [
       {
         "label": "Optimization results",
         "figure": {
           "data": [
             {
-              "hovertemplate": "x=%{x}<br>y=%{y}<extra></extra>",
+              "hovertemplate": "Iteration=%{x}<br>refractive_index=%{y}<extra></extra>",
               "legendgroup": "",
               "marker": {
                 "color": "#636efa",
@@ -19,11 +19,29 @@
               "orientation": "v",
               "showlegend": false,
               "x": [
-                NaN
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
               ],
               "xaxis": "x",
               "y": [
-                1.802604114762339
+                2.079667473416009,
+                0.8709893157455393,
+                1.555503748783007,
+                2.1257166481210845,
+                1.3503182438353836,
+                1.659098503962656,
+                1.4384127557009232,
+                2.4284166175171773,
+                2.490676597333392,
+                2.621132760598248
               ],
               "yaxis": "y",
               "type": "scatter"
@@ -875,12 +893,7 @@
               ],
               "matches": "y",
               "showticklabels": false
-            },
-            "title": {
-              "text": "Optimization results"
-            },
-            "height": 400,
-            "width": 716
+            }
           }
         }
       }
