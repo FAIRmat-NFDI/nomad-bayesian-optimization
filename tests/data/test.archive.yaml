@@ -1,0 +1,3 @@
+data:
+  m_def: nomad_bayesian_optimization.schema_packages.mypackage.MySchema
+  name: Markus
