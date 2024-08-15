@@ -1,2 +1,2 @@
 recursive-include * nomad_plugin.yaml
-recursive-include src/nomad_bayesian_optimization/example_uploads *
+graft src/nomad_bayesian_optimization/example_uploads
