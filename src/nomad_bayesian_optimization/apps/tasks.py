@@ -8,7 +8,7 @@ from nomad.config.models.ui import (
     SearchQuantities,
 )
 
-schema_name = 'nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization'
+schema_name = 'nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization'  # noqa: E501
 app = App(
     label='Bayesian Optimizations Tasks',
     path='bayesian-optimization-tasks',

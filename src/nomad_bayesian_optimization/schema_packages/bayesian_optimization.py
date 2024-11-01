@@ -196,7 +196,6 @@ class BayesianOptimization(PlotSection, Schema):
         Optimization.
         """,
     )
-    my_subsection = SubSection(section_def=MySection)
 
     def from_baybe_campaign(campaign):
         # Populate the parts that are directly compatible with a BayBE campaign
@@ -214,10 +213,6 @@ class BayesianOptimization(PlotSection, Schema):
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
-
-        self.my_subsection = MySection(my_quantity='Test')
-        self.reference_direct = archive.data.my_subsection
-        self.reference_inherited = archive.data.my_subsection
 
         # If this entry has been created from a BayBE run, we use that data to
         # create plots.
