@@ -26,6 +26,7 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
+    "nomad-lab>=1.3.0",
     "baybe",
     "structlog",
 ]
@@ -115,3 +116,4 @@ where = ["src"]
 "nomad_bayesian_optimization.schema_packages:experiments" = "nomad_bayesian_optimization.schema_packages:experiments"
 "nomad_bayesian_optimization.schema_packages:bayesian_optimization" = "nomad_bayesian_optimization.schema_packages:bayesian_optimization"
 "nomad_bayesian_optimization.example_uploads:getting_started" = "nomad_bayesian_optimization.example_uploads:getting_started"
+"nomad_bayesian_optimization.example_uploads:optimization_tasks" = "nomad_bayesian_optimization.example_uploads:optimization_tasks"

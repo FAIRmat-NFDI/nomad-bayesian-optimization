@@ -1,9 +1,18 @@
 import pandas as pd
 import plotly.graph_objects as go
 from baybe.serialization.utils import deserialize_dataframe
-from nomad.datamodel.data import Schema
+from nomad.datamodel.data import ArchiveSection, Schema
+from nomad.datamodel.metainfo.annotations import ELNAnnotation
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
-from nomad.metainfo import JSON, MEnum, MSection, Quantity, SchemaPackage, SubSection
+from nomad.metainfo import (
+    JSON,
+    MEnum,
+    MSection,
+    Quantity,
+    SchemaPackage,
+    Section,
+    SubSection,
+)
 
 m_package = SchemaPackage()
 
@@ -86,7 +95,7 @@ class Recommender(MSection):
     type = Quantity(
         type=MEnum(
             'TwoPhaseMetaRecommender',
-            'SequentialGreedyRecommender',
+            'NaiveHybridSpaceRecommender',
             'RandomRecommender',
         )
     )
@@ -98,34 +107,108 @@ class Recommender(MSection):
     sampling_percentage = Quantity(type=float)
 
 
+class Optimization(MSection):
+    """Contains information about the optimization procedure."""
+
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+
+    finished = Quantity(
+        type=bool,
+        description='Is the optimization finished',
+        a_eln=ELNAnnotation(
+            component='BoolEditQuantity',
+        ),
+    )
+    status = Quantity(
+        type=MEnum('Initializing', 'Suggesting', 'Acquiring', 'Finished', 'Error'),
+        default='Initializing',
+        description='Optimization status.',
+        a_eln=ELNAnnotation(
+            component='EnumEditQuantity',
+        ),
+    )
+    n_steps = Quantity(type=int, description='Number of steps in optimization.')
+    entries = Quantity(
+        type=str,
+        shape=['*'],
+        description='List of entry_ids connected to the optimization.',
+    )
+
+
+class Material(MSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+    substance_name = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(
+            component='StringEditQuantity',
+        ),
+    )
+
+
+class Source(MSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+    materials = SubSection(section_def=Material, repeats=True)
+
+
 class Step(MSection):
-    type = Quantity(type=MEnum('TwoPhaseMetaRecommender'))
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+    sources = SubSection(section_def=Source, repeats=True)
+
+
+class MySection(ArchiveSection):
+    my_quantity = Quantity(type=str)
 
 
 class BayesianOptimization(PlotSection, Schema):
     """Represents a single Bayesian optimization task."""
 
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+
     searchspace = SubSection(section_def=SearchSpace)
     objective = SubSection(section_def=Objective)
     recommender = SubSection(section_def=Recommender)
-    entries = Quantity(
-        type=str,
-        shape=['*'],
-        description='List of entries connected to the optimization.',
-    )
-    status = Quantity(
-        type=MEnum('INITIALIZING', 'SUGGESTING', 'ACQUIRING', 'FINISHED', 'ERROR'),
-        default='INITIALIZING',
-    )
+    optimization = SubSection(section_def=Optimization)
+    steps = SubSection(section_def=Step, repeats=True)
     baybe_campaign = Quantity(
         type=JSON,
-        description='Contains the fully serialized BayBE campaign that represents this Bayesian Optimization.',
+        description="""
+        Contains the fully serialized BayBE campaign that represents this Bayesian
+        Optimization.
+        """,
     )
 
     def from_baybe_campaign(campaign):
+        # Populate the parts that are directly compatible with a BayBE campaign
+        # data model
         dictionary = campaign.to_dict()
         result = BayesianOptimization.m_from_dict(dictionary)
         result.baybe_campaign = dictionary
+
+        # Populate additional parts that cannot be directly read from a BayBE
+        # campaign
+        df = deserialize_dataframe(dictionary['_measurements_exp'])
+        result.optimization = Optimization(n_steps=df.shape[0], status='Finished')
+
         return result
 
     def normalize(self, archive, logger):
@@ -134,8 +217,6 @@ class BayesianOptimization(PlotSection, Schema):
         # If this entry has been created from a BayBE run, we use that data to
         # create plots.
         if self.baybe_campaign:
-            df = deserialize_dataframe(self.baybe_campaign['_cached_recommendation'])
-            print(df)
             # BayBE encodes the optimization progress in a special way that requires
             # it to be read with a utility function.
             df = deserialize_dataframe(self.baybe_campaign['_measurements_exp'])
@@ -187,7 +268,6 @@ class BayesianOptimization(PlotSection, Schema):
                 template='plotly_white',
                 margin=dict(l=0, r=0, t=0, b=0),
                 width=800,
-                # autosize=,
             )
 
             self.figures = [
