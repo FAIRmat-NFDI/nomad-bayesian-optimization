@@ -197,23 +197,19 @@ class BayesianOptimization(PlotSection, Schema):
         """,
     )
     my_subsection = SubSection(section_def=MySection)
-    reference_direct = Quantity(
-        type=MySection,
-        a_eln=ELNAnnotation(
-            component='ReferenceEditQuantity',
-        ),
-    )
-    reference_inherited = Quantity(
-        type=ArchiveSection,
-        a_eln=ELNAnnotation(
-            component='ReferenceEditQuantity',
-        ),
-    )
 
     def from_baybe_campaign(campaign):
+        # Populate the parts that are directly compatible with a BayBE campaign
+        # data model
         dictionary = campaign.to_dict()
         result = BayesianOptimization.m_from_dict(dictionary)
         result.baybe_campaign = dictionary
+
+        # Populate additional parts that cannot be directly read from a BayBE
+        # campaign
+        df = deserialize_dataframe(dictionary['_measurements_exp'])
+        result.optimization = Optimization(n_steps=df.shape[0], status='Finished')
+
         return result
 
     def normalize(self, archive, logger):
