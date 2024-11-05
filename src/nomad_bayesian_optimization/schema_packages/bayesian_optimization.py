@@ -154,6 +154,12 @@ class Step(MSection):
         desription='The values suggested by the Bayesian optimization procedure.',
     )
 
+    def normalize(self, archive, logger) -> None:
+        # TODO: Extract value_final from the entry reference using the search
+        # space information
+        if not self.value_final and self.entry:
+            pass
+
 
 class Optimization(ArchiveSection):
     """Contains information about the optimization procedure."""
