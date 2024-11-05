@@ -136,7 +136,26 @@ class Recommender(MSection):
     sampling_percentage = Quantity(type=float)
 
 
-class Optimization(MSection):
+class Step(MSection):
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            lane_width='600px',
+        )
+    )
+    entry = Quantity(
+        type=Schema,
+        a_eln=dict(component='ReferenceEditQuantity'),
+    )
+    value_final = Quantity(
+        type=JSON, desription='The final values passed to the optimization procedure.'
+    )
+    value_suggestion = Quantity(
+        type=JSON,
+        desription='The values suggested by the Bayesian optimization procedure.',
+    )
+
+
+class Optimization(ArchiveSection):
     """Contains information about the optimization procedure."""
 
     m_def = Section(
@@ -144,64 +163,19 @@ class Optimization(MSection):
             lane_width='600px',
         )
     )
-
-    finished = Quantity(
-        type=bool,
-        description='Is the optimization finished',
-        a_eln=ELNAnnotation(
-            component='BoolEditQuantity',
-        ),
-    )
     status = Quantity(
         type=MEnum('Initializing', 'Suggesting', 'Acquiring', 'Finished', 'Error'),
         default='Initializing',
         description='Optimization status.',
-        a_eln=ELNAnnotation(
-            component='EnumEditQuantity',
-        ),
     )
-    n_steps = Quantity(type=int, description='Number of steps in optimization.')
-    entries = Quantity(
-        type=str,
-        shape=['*'],
-        description='List of entry_ids connected to the optimization.',
+    steps = SubSection(section_def=Step, repeats=True)
+    n_steps = Quantity(
+        type=int,
+        description='Number of steps in optimization.',
     )
 
-
-class Material(MSection):
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-    substance_name = Quantity(
-        type=str,
-        a_eln=ELNAnnotation(
-            component='StringEditQuantity',
-        ),
-    )
-
-
-class Source(MSection):
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-    materials = SubSection(section_def=Material, repeats=True)
-
-
-class Step(MSection):
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-    sources = SubSection(section_def=Source, repeats=True)
-
-
-class MySection(ArchiveSection):
-    my_quantity = Quantity(type=str)
+    def normalize(self, archive, logger) -> None:
+        self.n_steps = len(self.steps or [])
 
 
 class BayesianOptimization(PlotSection, Schema):
@@ -218,7 +192,6 @@ class BayesianOptimization(PlotSection, Schema):
     objective = SubSection(section_def=Objective)
     recommender = SubSection(section_def=Recommender)
     optimization = SubSection(section_def=Optimization)
-    steps = SubSection(section_def=Step, repeats=True)
     baybe_campaign = Quantity(
         type=JSON,
         description="""
@@ -227,9 +200,8 @@ class BayesianOptimization(PlotSection, Schema):
         """,
     )
 
-    def from_baybe_campaign(campaign):
-        # Populate the parts that are directly compatible with a BayBE campaign
-        # data model
+    def from_baybe(campaign):
+        """Instantiate a BayesianOptimization from a BayBE campaign."""
         dictionary = campaign.to_dict()
         result = BayesianOptimization()
         result.baybe_campaign = dictionary.copy()
@@ -279,12 +251,24 @@ class BayesianOptimization(PlotSection, Schema):
         dictionary['parameters'] = parameters
         result.m_update_from_dict(dictionary)
 
-        # Populate additional parts that cannot be directly read from a BayBE
-        # campaign
+        # Populate optimization steps
         df = deserialize_dataframe(dictionary['_measurements_exp'])
-        result.optimization = Optimization(n_steps=df.shape[0], status='Finished')
+        optimization = Optimization(status='Finished')
+        for i, step in df.iterrows():
+            optimization.steps.append(Step(value_final=step.to_dict()))
+
+        # Populate suggested step
+        df = deserialize_dataframe(dictionary['_cached_recommendation'])
+        if not df.empty:
+            optimization.steps.append(Step(value_suggestion=df.to_dict()))
+
+        result.optimization = optimization
 
         return result
+
+    def to_baybe(campaign):
+        """TODO"""
+        pass
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
