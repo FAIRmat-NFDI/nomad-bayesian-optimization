@@ -65,20 +65,7 @@ app = App(
                 title='Parameters',
                 items=[
                     MenuItemTerms(
-                        quantity=f'data.parameters.type#{schema_name}',
-                    ),
-                    MenuItemTerms(
                         quantity=f'data.parameters.name#{schema_name}',
-                    ),
-                    MenuItemHistogram(
-                        x=Axis(
-                            search_quantity=f'data.parameters.bounds.lower#{schema_name}'
-                        )
-                    ),
-                    MenuItemHistogram(
-                        x=Axis(
-                            search_quantity=f'data.parameters.bounds.upper#{schema_name}'
-                        )
                     ),
                 ],
             ),
@@ -107,14 +94,6 @@ app = App(
                             search_quantity=f'data.recommender.sampling_percentage#{schema_name}'
                         )
                     ),
-                ],
-            ),
-            Menu(
-                title='Optimization',
-                items=[
-                    MenuItemHistogram(
-                        x=Axis(search_quantity=f'data.n_steps#{schema_name}')
-                    )
                 ],
             ),
         ]
