@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from baybe.serialization.utils import deserialize_dataframe
 from nomad.datamodel.data import ArchiveSection, Schema
-from nomad.datamodel.metainfo.annotations import ELNAnnotation
+from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.metainfo import (
     JSON,
@@ -17,50 +17,79 @@ from nomad.metainfo import (
 m_package = SchemaPackage()
 
 
-class Parameter(MSection):
+class Parameter(ArchiveSection):
     """Parameter."""
 
-    name = Quantity(type=str)
+    name = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
+    )
+    value_reference = Quantity(
+        type=Quantity,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.ReferenceEditQuantity),
+    )
+    definition = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
+    )  # nomad_bayesian_optimization.schema_packages.experiments.CVDExperiment.gas_flow_rate
 
 
-class CategoricalParameter(Parameter):
-    """Discrete categorical parameter."""
+class ContinuousParameter(Parameter):
+    """Continuous parameter."""
 
-    type = Quantity(type=MEnum('CategoricalParameter'))
-    values = Quantity(type=str, shape=['*'])
-    encoding = Quantity(type=str)
+    lower_bound = Quantity(
+        type=float,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
+    )
+    upper_bound = Quantity(
+        type=float,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
+    )
+
+
+class DiscreteParameter(Parameter):
+    """Discrete parameter."""
+
+    pass
+
+
+class NumericalDiscreteParameter(DiscreteParameter):
+    values = Quantity(
+        type=float,
+        shape=['*'],
+        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
+    )  # TODO populate values from m_def
+
+
+class CategoricalParameter(DiscreteParameter):
+    values = Quantity(
+        type=str,
+        shape=['*'],
+        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
+    )  # TODO populate values from m_def
+
+
+class BoSubstance(ArchiveSection):
+    name = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
+    )
+    smiles = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
+    )
+
+
+class SubstanceParameter(DiscreteParameter):
+    values = SubSection(
+        section_def=BoSubstance,
+        repeats=True,
+    )
 
 
 class Bounds(MSection):
     lower = Quantity(type=float)
     upper = Quantity(type=float)
-
-
-class NumericalContinuousParameter(Parameter):
-    """Continuous numerical parameter."""
-
-    type = Quantity(type=MEnum('NumericalContinuousParameter'))
-    bounds = SubSection(section_def=Bounds)
-
-
-class Discrete(MSection):
-    """Container for a list of discrete parameters in a search space."""
-
-    parameters = SubSection(section_def=CategoricalParameter, repeats=True)
-
-
-class Continuous(MSection):
-    """Container for a list of continuous parameters in a search space."""
-
-    parameters = SubSection(section_def=NumericalContinuousParameter, repeats=True)
-
-
-class SearchSpace(MSection):
-    """The search space of the task. Divided into two categories: discrete and
-    continuous."""
-
-    discrete = SubSection(section_def=Discrete)
-    continuous = SubSection(section_def=Continuous)
 
 
 class Target(MSection):
@@ -184,7 +213,8 @@ class BayesianOptimization(PlotSection, Schema):
         )
     )
 
-    searchspace = SubSection(section_def=SearchSpace)
+    # searchspace = SubSection(section_def=SearchSpace)
+    parameters = SubSection(section_def=Parameter, repeats=True)
     objective = SubSection(section_def=Objective)
     recommender = SubSection(section_def=Recommender)
     optimization = SubSection(section_def=Optimization)
@@ -201,8 +231,53 @@ class BayesianOptimization(PlotSection, Schema):
         # Populate the parts that are directly compatible with a BayBE campaign
         # data model
         dictionary = campaign.to_dict()
-        result = BayesianOptimization.m_from_dict(dictionary)
-        result.baybe_campaign = dictionary
+        result = BayesianOptimization()
+        result.baybe_campaign = dictionary.copy()
+
+        searchspace: dict = dictionary.pop('searchspace', {})
+        discrete: dict = searchspace.get('discrete', {})
+        continuous: dict = searchspace.get('continuous', {})
+        ps = discrete.get('parameters', []) + continuous.get('parameters', [])
+        parameters = []
+        for parameter in ps:
+            if parameter['type'] == 'CategoricalParameter':
+                parameters.append(
+                    {
+                        'm_def': (
+                            'nomad_bayesian_optimization.schema_packages.'
+                            'bayesian_optimization.CategoricalParameter'
+                        ),
+                        'name': parameter['name'],
+                        'values': parameter['values'],
+                    }
+                )
+            elif parameter['type'] == 'NumericalDiscreteParameter':
+                parameters.append(
+                    {
+                        'm_def': (
+                            'nomad_bayesian_optimization.schema_packages.'
+                            'bayesian_optimization.NumericalDiscreteParameter'
+                        ),
+                        'name': parameter['name'],
+                        'values': parameter['values'],
+                    }
+                )
+            elif parameter['type'] == 'NumericalContinuousParameter':
+                parameters.append(
+                    {
+                        'm_def': (
+                            'nomad_bayesian_optimization.schema_packages.'
+                            'bayesian_optimization.ContinuousParameter'
+                        ),
+                        'name': parameter['name'],
+                        'lower_bound': parameter['bounds']['lower'],
+                        'upper_bound': parameter['bounds']['upper'],
+                    }
+                )
+            elif parameter['type'] == 'SubstanceParameter':
+                raise NotImplementedError('SubstanceParameter not implemented')
+        dictionary['parameters'] = parameters
+        result.m_update_from_dict(dictionary)
 
         # Populate additional parts that cannot be directly read from a BayBE
         # campaign
