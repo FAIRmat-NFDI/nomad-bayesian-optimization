@@ -1,4 +1,3 @@
-import pandas as pd
 import plotly.graph_objects as go
 from baybe.serialization.utils import deserialize_dataframe
 from nomad.datamodel.data import ArchiveSection, Schema
@@ -146,10 +145,10 @@ class Step(MSection):
         type=Schema,
         a_eln=dict(component='ReferenceEditQuantity'),
     )
-    value_final = Quantity(
+    value_used = Quantity(
         type=JSON, desription='The final values passed to the optimization procedure.'
     )
-    value_suggestion = Quantity(
+    value_recommended = Quantity(
         type=JSON,
         desription='The values suggested by the Bayesian optimization procedure.',
     )
@@ -157,7 +156,7 @@ class Step(MSection):
     def normalize(self, archive, logger) -> None:
         # TODO: Extract value_final from the entry reference using the search
         # space information
-        if not self.value_final and self.entry:
+        if not self.value_used and self.entry:
             pass
 
 
@@ -201,8 +200,8 @@ class BayesianOptimization(PlotSection, Schema):
     baybe_campaign = Quantity(
         type=JSON,
         description="""
-        Contains the fully serialized BayBE campaign that represents this Bayesian
-        Optimization.
+        Contains the full JSON serialized BayBE campaign that represents this
+        Bayesian Optimization.
         """,
     )
 
@@ -261,7 +260,7 @@ class BayesianOptimization(PlotSection, Schema):
         df = deserialize_dataframe(dictionary['_measurements_exp'])
         optimization = Optimization(status='Finished')
         for i, step in df.iterrows():
-            optimization.steps.append(Step(value_final=step.to_dict()))
+            optimization.steps.append(Step(value_used=step.to_dict()))
 
         # Populate suggested step
         df = deserialize_dataframe(dictionary['_cached_recommendation'])
@@ -272,73 +271,69 @@ class BayesianOptimization(PlotSection, Schema):
 
         return result
 
-    def to_baybe(campaign):
-        """TODO"""
-        pass
-
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
 
-        # If this entry has been created from a BayBE run, we use that data to
-        # create plots.
-        if self.baybe_campaign:
-            # BayBE encodes the optimization progress in a special way that requires
-            # it to be read with a utility function.
-            df = deserialize_dataframe(self.baybe_campaign['_measurements_exp'])
+        if not self.optimization or not self.optimization.steps:
+            return
 
+        # Gather information from the steps into a single list
+        figures = []
+        steps = []
+        for step in self.optimization.steps:
+            value = step.used or step.value_recommended
+            values = [value.get(parameter.name) for parameter in parameters]
+
+        # Create a separate plot for each objective. TODO: The number of plots
+        # to create should probably be limited, or at least the number that are
+        # shown should be limited.
+        targets = [self.objective.target]
+        for target in targets:
             # Generate a plot that shows how the optimization progresses each step
-            target_name = self.objective.target.name
-            figure1 = go.Figure()
-            figure1.add_trace(
+            target_name = target.name
+            figure = go.Figure()
+            figure.add_trace(
                 go.Scatter(
                     x=df['BatchNr'],
                     y=df[target_name],
                     mode='lines+markers',
                 )
             )
-            figure1.update_layout(
+            figure.update_layout(
                 template='plotly_white',
                 title='Progress',
                 xaxis_title='Iteration',
                 yaxis_title=target_name,
             )
-
-            # Create a table of the traversed search space from last to first
-            # step. If there is a non-tried recommendation, add it to the table
-            # as a new column
-            cached_recommendation = deserialize_dataframe(
-                self.baybe_campaign['_cached_recommendation']
+            figures.append(
+                PlotlyFigure(label='Progress', figure=figure.to_plotly_json())
             )
-            if not cached_recommendation.empty:
-                df = pd.concat(
-                    [df, cached_recommendation], ignore_index=True, sort=False
+
+        # Create a table of the traversed search space from last to first step.
+        # Recommended, but not yet tried values are added to the table as well.
+        df = df[::-1]
+        figure = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(
+                        values=list(df.columns),
+                        align='left',
+                    ),
+                    cells=dict(
+                        values=df.transpose().values.tolist(),
+                        align='left',
+                    ),
                 )
-            df = df[::-1]
-
-            figure2 = go.Figure(
-                data=[
-                    go.Table(
-                        header=dict(
-                            values=list(df.columns),
-                            align='left',
-                        ),
-                        cells=dict(
-                            values=df.transpose().values.tolist(),
-                            align='left',
-                        ),
-                    )
-                ]
-            )
-            figure2.update_layout(
-                template='plotly_white',
-                margin=dict(l=0, r=0, t=0, b=0),
-                width=800,
-            )
-
-            self.figures = [
-                PlotlyFigure(label='Progress', figure=figure1.to_plotly_json()),
-                PlotlyFigure(label='Steps', figure=figure2.to_plotly_json()),
             ]
+        )
+        figure.update_layout(
+            template='plotly_white',
+            margin=dict(l=0, r=0, t=0, b=0),
+            width=800,
+        )
+        figures.append(figure)
+
+        self.figures = figures
 
 
 m_package.__init_metainfo__()
