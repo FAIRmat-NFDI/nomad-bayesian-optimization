@@ -1,3 +1,4 @@
+import pandas as pd
 import plotly.graph_objects as go
 from baybe.serialization.utils import deserialize_dataframe
 from nomad.datamodel.data import ArchiveSection, Schema
@@ -145,23 +146,27 @@ class Step(MSection):
         type=Schema,
         a_eln=dict(component='ReferenceEditQuantity'),
     )
-    value_used = Quantity(
-        type=JSON, desription='The final values passed to the optimization procedure.'
+    values_used = Quantity(
+        type=JSON, desription='The values used in the optimization procedure.'
     )
-    value_recommended = Quantity(
+    values_recommended = Quantity(
         type=JSON,
-        desription='The values suggested by the Bayesian optimization procedure.',
+        desription="""
+        The values recommended by the optimization procedure. Note that it is not always
+        possible to use these values in real experiments, and the final values that were
+        used should be recorded in `values_used`.
+        """,
     )
 
     def normalize(self, archive, logger) -> None:
         # TODO: Extract value_final from the entry reference using the search
         # space information
-        if not self.value_used and self.entry:
+        if not self.values_used and self.entry:
             pass
 
 
-class Optimization(ArchiveSection):
-    """Contains information about the optimization procedure."""
+class BayesianOptimization(PlotSection, Schema):
+    """Represents a single Bayesian optimization task."""
 
     m_def = Section(
         a_eln=ELNAnnotation(
@@ -173,30 +178,14 @@ class Optimization(ArchiveSection):
         default='Initializing',
         description='Optimization status.',
     )
+    parameters = SubSection(section_def=Parameter, repeats=True)
+    objective = SubSection(section_def=Objective)
+    recommender = SubSection(section_def=Recommender)
     steps = SubSection(section_def=Step, repeats=True)
     n_steps = Quantity(
         type=int,
         description='Number of steps in optimization.',
     )
-
-    def normalize(self, archive, logger) -> None:
-        self.n_steps = len(self.steps or [])
-
-
-class BayesianOptimization(PlotSection, Schema):
-    """Represents a single Bayesian optimization task."""
-
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-
-    # searchspace = SubSection(section_def=SearchSpace)
-    parameters = SubSection(section_def=Parameter, repeats=True)
-    objective = SubSection(section_def=Objective)
-    recommender = SubSection(section_def=Recommender)
-    optimization = SubSection(section_def=Optimization)
     baybe_campaign = Quantity(
         type=JSON,
         description="""
@@ -258,31 +247,32 @@ class BayesianOptimization(PlotSection, Schema):
 
         # Populate optimization steps
         df = deserialize_dataframe(dictionary['_measurements_exp'])
-        optimization = Optimization(status='Finished')
         for i, step in df.iterrows():
-            optimization.steps.append(Step(value_used=step.to_dict()))
+            result.steps.append(Step(values_used=step.to_dict()))
 
         # Populate suggested step
         df = deserialize_dataframe(dictionary['_cached_recommendation'])
         if not df.empty:
-            optimization.steps.append(Step(value_suggestion=df.to_dict()))
-
-        result.optimization = optimization
+            result.steps.append(Step(value_suggestion=df.to_dict()))
 
         return result
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
 
-        if not self.optimization or not self.optimization.steps:
+        self.n_steps = len(self.steps or [])
+
+        if not self.steps:
             return
 
         # Gather information from the steps into a single list
         figures = []
-        steps = []
-        for step in self.optimization.steps:
-            value = step.used or step.value_recommended
-            values = [value.get(parameter.name) for parameter in parameters]
+        steps_list = []
+        for step in self.steps:
+            value = step.values_used or step.values_recommended
+            if value:
+                steps_list.append(value)
+        steps_df = pd.DataFrame.from_dict(steps_list)
 
         # Create a separate plot for each objective. TODO: The number of plots
         # to create should probably be limited, or at least the number that are
@@ -294,8 +284,8 @@ class BayesianOptimization(PlotSection, Schema):
             figure = go.Figure()
             figure.add_trace(
                 go.Scatter(
-                    x=df['BatchNr'],
-                    y=df[target_name],
+                    x=steps_df['BatchNr'],
+                    y=steps_df[target_name],
                     mode='lines+markers',
                 )
             )
@@ -306,21 +296,21 @@ class BayesianOptimization(PlotSection, Schema):
                 yaxis_title=target_name,
             )
             figures.append(
-                PlotlyFigure(label='Progress', figure=figure.to_plotly_json())
+                PlotlyFigure(label=target_name, figure=figure.to_plotly_json())
             )
 
         # Create a table of the traversed search space from last to first step.
         # Recommended, but not yet tried values are added to the table as well.
-        df = df[::-1]
+        steps_df = steps_df[::-1]
         figure = go.Figure(
             data=[
                 go.Table(
                     header=dict(
-                        values=list(df.columns),
+                        values=list(steps_df.columns),
                         align='left',
                     ),
                     cells=dict(
-                        values=df.transpose().values.tolist(),
+                        values=steps_df.transpose().values.tolist(),
                         align='left',
                     ),
                 )
@@ -331,8 +321,7 @@ class BayesianOptimization(PlotSection, Schema):
             margin=dict(l=0, r=0, t=0, b=0),
             width=800,
         )
-        figures.append(figure)
-
+        figures.append(PlotlyFigure(label='Progress', figure=figure.to_plotly_json()))
         self.figures = figures
 
 

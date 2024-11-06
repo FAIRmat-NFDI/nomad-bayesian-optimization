@@ -1,7 +1,7 @@
 {
   "data": {
     "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization",
-    "n_steps": 25,
+    "n_steps": 6,
     "baybe_campaign": {
       "searchspace": {
         "discrete": {
@@ -18,7 +18,7 @@
             }
           ],
           "exp_rep": "gASVlQIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsBSwOGlGgPjAVkdHlwZZSTlIwCTziUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LP3SUYoldlCiMD0dhbGxpdW0gbml0cmlkZZSMB1NpbGljb26UjA9TaWxpY29uIGNhcmJpZGWUZXSUYowIYnVpbHRpbnOUjAVzbGljZZSTlEsASwFLAYeUUpRLAoeUUpSFlF2UKIwYcGFuZGFzLmNvcmUuaW5kZXhlcy5iYXNllIwKX25ld19JbmRleJSTlGgsjAVJbmRleJSTlH2UKIwEZGF0YZRoDmgRSwCFlGgTh5RSlChLAUsBhZRoG4ldlIwJc3Vic3RyYXRllGF0lGKMBG5hbWWUTnWGlFKUaC6MGXBhbmRhcy5jb3JlLmluZGV4ZXMucmFuZ2WUjApSYW5nZUluZGV4lJOUfZQoaDpOjAVzdGFydJRLAIwEc3RvcJRLA4wEc3RlcJRLAXWGlFKUZYaUUpSMBF90eXCUjAlkYXRhZnJhbWWUjAlfbWV0YWRhdGGUXZSMBWF0dHJzlH2UjAZfZmxhZ3OUfZSMF2FsbG93c19kdXBsaWNhdGVfbGFiZWxzlIhzdWIu",
-          "metadata": "gASVuAIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCYjGUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LAHSUYohDCQABAAEBAAABAJR0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA2gcTk5OSv////9K/////0s/dJRiiV2UKIwPd2FzX3JlY29tbWVuZGVklIwMd2FzX21lYXN1cmVklIwOZG9udF9yZWNvbW1lbmSUZXSUYowEbmFtZZROdYaUUpRoK4wZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lChoPU6MBXN0YXJ0lEsAjARzdG9wlEsDjARzdGVwlEsBdYaUUpRlhpRSlIwEX3R5cJSMCWRhdGFmcmFtZZSMCV9tZXRhZGF0YZRdlIwFYXR0cnOUfZSMBl9mbGFnc5R9lIwXYWxsb3dzX2R1cGxpY2F0ZV9sYWJlbHOUiHN1Yi4=",
+          "metadata": "gASVuAIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCYjGUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LAHSUYohDCQEBAAEBAAABAJR0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA2gcTk5OSv////9K/////0s/dJRiiV2UKIwPd2FzX3JlY29tbWVuZGVklIwMd2FzX21lYXN1cmVklIwOZG9udF9yZWNvbW1lbmSUZXSUYowEbmFtZZROdYaUUpRoK4wZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lChoPU6MBXN0YXJ0lEsAjARzdG9wlEsDjARzdGVwlEsBdYaUUpRlhpRSlIwEX3R5cJSMCWRhdGFmcmFtZZSMCV9tZXRhZGF0YZRdlIwFYXR0cnOUfZSMBl9mbGFnc5R9lIwXYWxsb3dzX2R1cGxpY2F0ZV9sYWJlbHOUiHN1Yi4=",
           "empty_encoding": false,
           "constraints": [],
           "comp_rep": "gASVEwMAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCZjiUiYiHlFKUKEsDjAE8lE5OTkr/////Sv////9LAHSUYolDSAAAAAAAAPA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8D8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwP5R0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojBlzdWJzdHJhdGVfR2FsbGl1bSBuaXRyaWRllIwRc3Vic3RyYXRlX1NpbGljb26UjBlzdWJzdHJhdGVfU2lsaWNvbiBjYXJiaWRllGV0lGKMBG5hbWWUTnWGlFKUaCuMGXBhbmRhcy5jb3JlLmluZGV4ZXMucmFuZ2WUjApSYW5nZUluZGV4lJOUfZQoaD5OjAVzdGFydJRLAIwEc3RvcJRLA4wEc3RlcJRLAXWGlFKUZYaUUpSMBF90eXCUjAlkYXRhZnJhbWWUjAlfbWV0YWRhdGGUXZSMBWF0dHJzlH2UjAZfZmxhZ3OUfZSMF2FsbG93c19kdXBsaWNhdGVfbGFiZWxzlIhzdWIu"
@@ -166,9 +166,9 @@
         },
         "switch_after": 1
       },
-      "n_batches_done": 25,
-      "n_fits_done": 24,
-      "_measurements_exp": "gASV0wcAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsZhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojAdTaWxpY29ulIwPR2FsbGl1bSBuaXRyaWRllGgfaB9oH4wPU2lsaWNvbiBjYXJiaWRllGghaCFoIWgfaCBoIWghaCBoIWghaCBoIWggaB9oIWggaCFoH2ghZXSUYowIYnVpbHRpbnOUjAVzbGljZZSTlEsASwFLAYeUUpRLAoeUUpRoC2gOaBFLAIWUaBOHlFKUKEsBSwNLGYaUaBiMAmY4lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGKJQlgCAABhxIZl4oQBQAAAAKdTvRNAXs02VKit8D+amZmZmZnJP14xER2Ft+U/zMzMKCfl+T8AAAAAAAAUQJqZmZmZmck/AXrIQ9BsA0AAAAAAAAAUQJqZmZmZmck/C402EpWm+z+amZmZmZnJP1qr8eHqwwpAVD5ZoBdX/j/7muUh6gEAQNkDVo0NE/8/AQFq76KZC0BPls5dfh7UP5qZmZmZmck/CSkC510E/T+/IIzMor8PQJz/5wT5Ev8/AAAAAAAAFEAPIHEhHCv/P40OFbSO1nJAAAAvhw5HgkDZWCpPbyN1QFEGs0reVnhAvMgS5cDSckAAAJeWcD11QAAAAAAAwIJAAAAAAADAckCAA9D0JPl0QAAAAAAAwIJAna0kGVzHdEBUXDxGFnZ7QBRkTQp2Z3pAAAAAAADAckCI3fmeFDl+QHNtI6BwpntAy6vxCccMfECJxh13YIl7QN2tDP38aH5A8CnrkbSygECen+7R8tR7QND555V+m3tAwXK0wcwre0C08TpgRq15QOAKbV0vf3pAE0N7GBvH/T+FU3THM+rYPxsXhapmS/8/GboicaKF+j8uf9wErJj4P3A999QuCQNAAMrZRvLt1j++J/4XvQP3P4IIBde2tAJAAGkqpvOi1D9IGisjzbr3P+5/Qu3YNARAHY1NM0gu/T/q/WgdJkf4PwDvZj2xwwFA0EJIll0/BECOf01WyPMBQHGpNcr7FgBAriUVVTcN9z+9i79yTfDwP5AmDICUCgRAcSCmsna69z+SDF05mYoEQBhn4/dA9+s/yPR+UeHeBECUdJRiaCVLAUsESwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSxmGlGgYjAJpOJSJiIeUUpQoSwNoMU5OTkr/////Sv////9LAHSUYolDyAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAQAAAAAAAAABQAAAAAAAAAGAAAAAAAAAAcAAAAAAAAACAAAAAAAAAAJAAAAAAAAAAoAAAAAAAAACwAAAAAAAAAMAAAAAAAAAA0AAAAAAAAADgAAAAAAAAAPAAAAAAAAABAAAAAAAAAAEQAAAAAAAAASAAAAAAAAABMAAAAAAAAAFAAAAAAAAAAVAAAAAAAAABYAAAAAAAAAFwAAAAAAAAAYAAAAAAAAABkAAAAAAAAAlHSUYmglSwRLBUsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLAUsZhpRoMIlDyAAAAAAAAPA/AAAAAAAAAEAAAAAAAAAIQAAAAAAAABBAAAAAAAAAFEAAAAAAAAAYQAAAAAAAABxAAAAAAAAAIEAAAAAAAAAiQAAAAAAAACRAAAAAAAAAJkAAAAAAAAAoQAAAAAAAACpAAAAAAAAALEAAAAAAAAAuQAAAAAAAADBAAAAAAAAAMUAAAAAAAAAyQAAAAAAAADNAAAAAAAAANEAAAAAAAAA1QAAAAAAAADZAAAAAAAAAN0AAAAAAAAA4QAAAAAAAAPh/lHSUYmglSwVLBksBh5RSlEsCh5RSlHSUXZQojBhwYW5kYXMuY29yZS5pbmRleGVzLmJhc2WUjApfbmV3X0luZGV4lJOUaFOMBUluZGV4lJOUfZQojARkYXRhlGgOaBFLAIWUaBOHlFKUKEsBSwaFlGgbiV2UKIwJc3Vic3RyYXRllIwNZ2FzX2Zsb3dfcmF0ZZSMC3RlbXBlcmF0dXJllIwQcmVmcmFjdGl2ZV9pbmRleJSMB0JhdGNoTnKUjAVGaXROcpRldJRijARuYW1llE51hpRSlGhVjBlwYW5kYXMuY29yZS5pbmRleGVzLnJhbmdllIwKUmFuZ2VJbmRleJSTlH2UKGhmTowFc3RhcnSUSwCMBHN0b3CUSxmMBHN0ZXCUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
+      "n_batches_done": 6,
+      "n_fits_done": 5,
+      "_measurements_exp": "gASVsgQAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsGhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojA9HYWxsaXVtIG5pdHJpZGWUjAdTaWxpY29ulGggaCBoIIwPU2lsaWNvbiBjYXJiaWRllGV0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsBSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsDSwaGlGgYjAJmOJSJiIeUUpQoSwOMATyUTk5OSv////9K/////0sAdJRiiUOQpp4iC3+nEUAzMzNDfnniPz3uRwsJd+I/NrgNaB924j8cmowRQi/2P5mZmavhGvs/kh+90HZ8f0AAAE0Mkkt0QHzW6jExOnlA9wk8h+oNfkAMy5EbpTR5QAAA7I6FX3hAUTOWEH597j840TPQKGz6P7G9wxtJbv4/rDyZzzfZ+T9rW68xaEYCQC3/UPQZ6ARAlHSUYmglSwFLBEsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLAUsGhpRoGIwCaTiUiYiHlFKUKEsDaDFOTk5K/////0r/////SwB0lGKJQzABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAEAAAAAAAAAAUAAAAAAAAABgAAAAAAAACUdJRiaCVLBEsFSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSwaGlGgwiUMwAAAAAAAA8D8AAAAAAAAAQAAAAAAAAAhAAAAAAAAAEEAAAAAAAAAUQAAAAAAAAPh/lHSUYmglSwVLBksBh5RSlEsCh5RSlHSUXZQojBhwYW5kYXMuY29yZS5pbmRleGVzLmJhc2WUjApfbmV3X0luZGV4lJOUaFOMBUluZGV4lJOUfZQojARkYXRhlGgOaBFLAIWUaBOHlFKUKEsBSwaFlGgbiV2UKIwJc3Vic3RyYXRllIwNZ2FzX2Zsb3dfcmF0ZZSMC3RlbXBlcmF0dXJllIwQcmVmcmFjdGl2ZV9pbmRleJSMB0JhdGNoTnKUjAVGaXROcpRldJRijARuYW1llE51hpRSlGhVjBlwYW5kYXMuY29yZS5pbmRleGVzLnJhbmdllIwKUmFuZ2VJbmRleJSTlH2UKGhmTowFc3RhcnSUSwCMBHN0b3CUSwaMBHN0ZXCUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
       "_cached_recommendation": "gASVWwEAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKV2UKIwYcGFuZGFzLmNvcmUuaW5kZXhlcy5iYXNllIwKX25ld19JbmRleJSTlIwZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lCiMBG5hbWWUTowFc3RhcnSUSwCMBHN0b3CUSwCMBHN0ZXCUSwF1hpRSlGgMaA99lChoEU5oEksAaBNLAGgUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
       "version": "0.11.2"
     },
@@ -185,53 +185,15 @@
                 3,
                 4,
                 5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25
+                6
               ],
               "y": [
-                1.8611098247822084,
-                0.38929457166641895,
-                1.9559084568913423,
-                1.657625619827405,
-                1.5372734250922337,
-                2.3794838560058267,
-                0.3582730953122848,
-                1.4384127557009232,
-                2.3382393644724866,
-                0.3224457857810563,
-                1.48310579049725,
-                2.5258043800276857,
-                1.8237993244191053,
-                1.5173703335602746,
-                2.220552901939186,
-                2.5309402218630126,
-                2.24403445648199,
-                2.011222438585883,
-                1.4407265971698098,
-                1.0586676103928163,
-                2.5051660541256027,
-                1.483023355338471,
-                2.5676750642319996,
-                0.8739323464935493,
-                2.608828198134322
+                0.9528189014396081,
+                1.6514061100870787,
+                1.901925190406342,
+                1.615531741077386,
+                2.284378421939825,
+                2.6133307540148025
               ],
               "type": "scatter"
             }
@@ -1080,131 +1042,36 @@
                   [
                     "Silicon carbide",
                     "Silicon",
-                    "Silicon carbide",
-                    "Gallium nitride",
-                    "Silicon carbide",
-                    "Silicon",
-                    "Gallium nitride",
-                    "Silicon carbide",
-                    "Gallium nitride",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Gallium nitride",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Gallium nitride",
-                    "Silicon",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
                     "Silicon",
                     "Silicon",
                     "Silicon",
-                    "Gallium nitride",
-                    "Silicon"
+                    "Gallium nitride"
                   ],
                   [
-                    1.948024874336628,
-                    5.0,
-                    1.9421320144319685,
-                    3.9685722332252165,
-                    1.8135661147849211,
-                    0.2,
-                    0.3143611827930259,
-                    3.4500178055023984,
-                    1.9421515961587288,
-                    2.0009348533816342,
-                    1.8962627662293885,
-                    3.345662846744216,
-                    0.2,
-                    1.7281695090721907,
-                    0.2,
-                    5.0,
-                    2.4281316085391613,
-                    0.2,
-                    5.0,
-                    1.6184455484151838,
-                    0.6786523406713447,
-                    0.2,
-                    1.0423968591320185,
-                    4.934889420866966,
-                    2.189884942221895
+                    1.6940628722310065,
+                    1.3865376172558461,
+                    0.5769192726418229,
+                    0.5770306797343846,
+                    0.5773307144641876,
+                    4.4135705699806405
                   ],
                   [
-                    423.9490637073013,
-                    410.82968161606846,
-                    434.7374894188652,
-                    441.71840468040045,
-                    445.30928223812396,
-                    534.3381689426587,
-                    486.5617647643356,
-                    440.58605109816614,
-                    448.7985934677387,
-                    442.4024964698685,
-                    483.567534423863,
-                    300.0,
-                    422.46631841879685,
-                    439.3804380758131,
-                    332.45998491599477,
-                    600.0,
-                    335.5715225339445,
-                    300.0,
-                    600.0,
-                    339.8399873636663,
-                    301.17209346139475,
-                    389.4292704575683,
-                    338.2146751074011,
-                    584.8820937797427,
-                    301.4098397085698
+                    389.97010700404644,
+                    403.29030949545336,
+                    480.86975787594514,
+                    403.6370104955056,
+                    324.72315626218915,
+                    503.7790076625471
                   ],
                   [
-                    2.608828198134322,
-                    0.8739323464935493,
-                    2.5676750642319996,
-                    1.483023355338471,
-                    2.5051660541256027,
-                    1.0586676103928163,
-                    1.4407265971698098,
-                    2.011222438585883,
-                    2.24403445648199,
-                    2.5309402218630126,
-                    2.220552901939186,
-                    1.5173703335602746,
-                    1.8237993244191053,
-                    2.5258043800276857,
-                    1.48310579049725,
-                    0.3224457857810563,
-                    2.3382393644724866,
-                    1.4384127557009232,
-                    0.3582730953122848,
-                    2.3794838560058267,
-                    1.5372734250922337,
-                    1.657625619827405,
-                    1.9559084568913423,
-                    0.38929457166641895,
-                    1.8611098247822084
+                    2.6133307540148025,
+                    2.284378421939825,
+                    1.615531741077386,
+                    1.901925190406342,
+                    1.6514061100870787,
+                    0.9528189014396081
                   ],
                   [
-                    25,
-                    24,
-                    23,
-                    22,
-                    21,
-                    20,
-                    19,
-                    18,
-                    17,
-                    16,
-                    15,
-                    14,
-                    13,
-                    12,
-                    11,
-                    10,
-                    9,
-                    8,
-                    7,
                     6,
                     5,
                     4,
@@ -1214,25 +1081,6 @@
                   ],
                   [
                     null,
-                    24.0,
-                    23.0,
-                    22.0,
-                    21.0,
-                    20.0,
-                    19.0,
-                    18.0,
-                    17.0,
-                    16.0,
-                    15.0,
-                    14.0,
-                    13.0,
-                    12.0,
-                    11.0,
-                    10.0,
-                    9.0,
-                    8.0,
-                    7.0,
-                    6.0,
                     5.0,
                     4.0,
                     3.0,
@@ -2133,20 +1981,20 @@
     "steps": [
       {
         "values_used": {
-          "substrate": "Silicon",
-          "gas_flow_rate": 2.189884942221895,
-          "temperature": 301.4098397085698,
-          "refractive_index": 1.8611098247822084,
+          "substrate": "Gallium nitride",
+          "gas_flow_rate": 4.4135705699806405,
+          "temperature": 503.7790076625471,
+          "refractive_index": 0.9528189014396081,
           "BatchNr": 1,
           "FitNr": 1.0
         }
       },
       {
         "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 4.934889420866966,
-          "temperature": 584.8820937797427,
-          "refractive_index": 0.38929457166641895,
+          "substrate": "Silicon",
+          "gas_flow_rate": 0.5773307144641876,
+          "temperature": 324.72315626218915,
+          "refractive_index": 1.6514061100870787,
           "BatchNr": 2,
           "FitNr": 2.0
         }
@@ -2154,9 +2002,9 @@
       {
         "values_used": {
           "substrate": "Silicon",
-          "gas_flow_rate": 1.0423968591320185,
-          "temperature": 338.2146751074011,
-          "refractive_index": 1.9559084568913423,
+          "gas_flow_rate": 0.5770306797343846,
+          "temperature": 403.6370104955056,
+          "refractive_index": 1.901925190406342,
           "BatchNr": 3,
           "FitNr": 3.0
         }
@@ -2164,9 +2012,9 @@
       {
         "values_used": {
           "substrate": "Silicon",
-          "gas_flow_rate": 0.2,
-          "temperature": 389.4292704575683,
-          "refractive_index": 1.657625619827405,
+          "gas_flow_rate": 0.5769192726418229,
+          "temperature": 480.86975787594514,
+          "refractive_index": 1.615531741077386,
           "BatchNr": 4,
           "FitNr": 4.0
         }
@@ -2174,9 +2022,9 @@
       {
         "values_used": {
           "substrate": "Silicon",
-          "gas_flow_rate": 0.6786523406713447,
-          "temperature": 301.17209346139475,
-          "refractive_index": 1.5372734250922337,
+          "gas_flow_rate": 1.3865376172558461,
+          "temperature": 403.29030949545336,
+          "refractive_index": 2.284378421939825,
           "BatchNr": 5,
           "FitNr": 5.0
         }
@@ -2184,200 +2032,10 @@
       {
         "values_used": {
           "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.6184455484151838,
-          "temperature": 339.8399873636663,
-          "refractive_index": 2.3794838560058267,
+          "gas_flow_rate": 1.6940628722310065,
+          "temperature": 389.97010700404644,
+          "refractive_index": 2.6133307540148025,
           "BatchNr": 6,
-          "FitNr": 6.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 5.0,
-          "temperature": 600.0,
-          "refractive_index": 0.3582730953122848,
-          "BatchNr": 7,
-          "FitNr": 7.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 0.2,
-          "temperature": 300.0,
-          "refractive_index": 1.4384127557009232,
-          "BatchNr": 8,
-          "FitNr": 8.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 2.4281316085391613,
-          "temperature": 335.5715225339445,
-          "refractive_index": 2.3382393644724866,
-          "BatchNr": 9,
-          "FitNr": 9.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon",
-          "gas_flow_rate": 5.0,
-          "temperature": 600.0,
-          "refractive_index": 0.3224457857810563,
-          "BatchNr": 10,
-          "FitNr": 10.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 0.2,
-          "temperature": 332.45998491599477,
-          "refractive_index": 1.48310579049725,
-          "BatchNr": 11,
-          "FitNr": 11.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.7281695090721907,
-          "temperature": 439.3804380758131,
-          "refractive_index": 2.5258043800276857,
-          "BatchNr": 12,
-          "FitNr": 12.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 0.2,
-          "temperature": 422.46631841879685,
-          "refractive_index": 1.8237993244191053,
-          "BatchNr": 13,
-          "FitNr": 13.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 3.345662846744216,
-          "temperature": 300.0,
-          "refractive_index": 1.5173703335602746,
-          "BatchNr": 14,
-          "FitNr": 14.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.8962627662293885,
-          "temperature": 483.567534423863,
-          "refractive_index": 2.220552901939186,
-          "BatchNr": 15,
-          "FitNr": 15.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 2.0009348533816342,
-          "temperature": 442.4024964698685,
-          "refractive_index": 2.5309402218630126,
-          "BatchNr": 16,
-          "FitNr": 16.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 1.9421515961587288,
-          "temperature": 448.7985934677387,
-          "refractive_index": 2.24403445648199,
-          "BatchNr": 17,
-          "FitNr": 17.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 3.4500178055023984,
-          "temperature": 440.58605109816614,
-          "refractive_index": 2.011222438585883,
-          "BatchNr": 18,
-          "FitNr": 18.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 0.3143611827930259,
-          "temperature": 486.5617647643356,
-          "refractive_index": 1.4407265971698098,
-          "BatchNr": 19,
-          "FitNr": 19.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon",
-          "gas_flow_rate": 0.2,
-          "temperature": 534.3381689426587,
-          "refractive_index": 1.0586676103928163,
-          "BatchNr": 20,
-          "FitNr": 20.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.8135661147849211,
-          "temperature": 445.30928223812396,
-          "refractive_index": 2.5051660541256027,
-          "BatchNr": 21,
-          "FitNr": 21.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Gallium nitride",
-          "gas_flow_rate": 3.9685722332252165,
-          "temperature": 441.71840468040045,
-          "refractive_index": 1.483023355338471,
-          "BatchNr": 22,
-          "FitNr": 22.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.9421320144319685,
-          "temperature": 434.7374894188652,
-          "refractive_index": 2.5676750642319996,
-          "BatchNr": 23,
-          "FitNr": 23.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon",
-          "gas_flow_rate": 5.0,
-          "temperature": 410.82968161606846,
-          "refractive_index": 0.8739323464935493,
-          "BatchNr": 24,
-          "FitNr": 24.0
-        }
-      },
-      {
-        "values_used": {
-          "substrate": "Silicon carbide",
-          "gas_flow_rate": 1.948024874336628,
-          "temperature": 423.9490637073013,
-          "refractive_index": 2.608828198134322,
-          "BatchNr": 25,
           "FitNr": null
         }
       }
