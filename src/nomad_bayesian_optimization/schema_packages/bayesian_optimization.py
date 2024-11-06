@@ -31,7 +31,7 @@ class Parameter(ArchiveSection):
     definition = Quantity(
         type=str,
         a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
-    )  # nomad_bayesian_optimization.schema_packages.experiments.CVDExperiment.gas_flow_rate
+    )
 
 
 class ContinuousParameter(Parameter):
