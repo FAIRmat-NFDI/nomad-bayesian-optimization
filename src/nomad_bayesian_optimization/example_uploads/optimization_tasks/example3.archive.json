@@ -1,6 +1,7 @@
 {
   "data": {
     "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization",
+    "n_steps": 6,
     "baybe_campaign": {
       "searchspace": {
         "discrete": {
@@ -17,7 +18,7 @@
             }
           ],
           "exp_rep": "gASVlQIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsBSwOGlGgPjAVkdHlwZZSTlIwCTziUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LP3SUYoldlCiMD0dhbGxpdW0gbml0cmlkZZSMB1NpbGljb26UjA9TaWxpY29uIGNhcmJpZGWUZXSUYowIYnVpbHRpbnOUjAVzbGljZZSTlEsASwFLAYeUUpRLAoeUUpSFlF2UKIwYcGFuZGFzLmNvcmUuaW5kZXhlcy5iYXNllIwKX25ld19JbmRleJSTlGgsjAVJbmRleJSTlH2UKIwEZGF0YZRoDmgRSwCFlGgTh5RSlChLAUsBhZRoG4ldlIwJc3Vic3RyYXRllGF0lGKMBG5hbWWUTnWGlFKUaC6MGXBhbmRhcy5jb3JlLmluZGV4ZXMucmFuZ2WUjApSYW5nZUluZGV4lJOUfZQoaDpOjAVzdGFydJRLAIwEc3RvcJRLA4wEc3RlcJRLAXWGlFKUZYaUUpSMBF90eXCUjAlkYXRhZnJhbWWUjAlfbWV0YWRhdGGUXZSMBWF0dHJzlH2UjAZfZmxhZ3OUfZSMF2FsbG93c19kdXBsaWNhdGVfbGFiZWxzlIhzdWIu",
-          "metadata": "gASVuAIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCYjGUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LAHSUYohDCQEBAAEBAAEBAJR0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA2gcTk5OSv////9K/////0s/dJRiiV2UKIwPd2FzX3JlY29tbWVuZGVklIwMd2FzX21lYXN1cmVklIwOZG9udF9yZWNvbW1lbmSUZXSUYowEbmFtZZROdYaUUpRoK4wZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lChoPU6MBXN0YXJ0lEsAjARzdG9wlEsDjARzdGVwlEsBdYaUUpRlhpRSlIwEX3R5cJSMCWRhdGFmcmFtZZSMCV9tZXRhZGF0YZRdlIwFYXR0cnOUfZSMBl9mbGFnc5R9lIwXYWxsb3dzX2R1cGxpY2F0ZV9sYWJlbHOUiHN1Yi4=",
+          "metadata": "gASVuAIAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCYjGUiYiHlFKUKEsDjAF8lE5OTkr/////Sv////9LAHSUYohDCQEBAAEBAAABAJR0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA2gcTk5OSv////9K/////0s/dJRiiV2UKIwPd2FzX3JlY29tbWVuZGVklIwMd2FzX21lYXN1cmVklIwOZG9udF9yZWNvbW1lbmSUZXSUYowEbmFtZZROdYaUUpRoK4wZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lChoPU6MBXN0YXJ0lEsAjARzdG9wlEsDjARzdGVwlEsBdYaUUpRlhpRSlIwEX3R5cJSMCWRhdGFmcmFtZZSMCV9tZXRhZGF0YZRdlIwFYXR0cnOUfZSMBl9mbGFnc5R9lIwXYWxsb3dzX2R1cGxpY2F0ZV9sYWJlbHOUiHN1Yi4=",
           "empty_encoding": false,
           "constraints": [],
           "comp_rep": "gASVEwMAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUjBZwYW5kYXMuX2xpYnMuaW50ZXJuYWxzlIwPX3VucGlja2xlX2Jsb2NrlJOUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAxfcmVjb25zdHJ1Y3SUk5SMBW51bXB5lIwHbmRhcnJheZSTlEsAhZRDAWKUh5RSlChLAUsDSwOGlGgPjAVkdHlwZZSTlIwCZjiUiYiHlFKUKEsDjAE8lE5OTkr/////Sv////9LAHSUYolDSAAAAAAAAPA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8D8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwP5R0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsDSwGHlFKUSwKHlFKUhZRdlCiMGHBhbmRhcy5jb3JlLmluZGV4ZXMuYmFzZZSMCl9uZXdfSW5kZXiUk5RoKYwFSW5kZXiUk5R9lCiMBGRhdGGUaA5oEUsAhZRoE4eUUpQoSwFLA4WUaBiMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojBlzdWJzdHJhdGVfR2FsbGl1bSBuaXRyaWRllIwRc3Vic3RyYXRlX1NpbGljb26UjBlzdWJzdHJhdGVfU2lsaWNvbiBjYXJiaWRllGV0lGKMBG5hbWWUTnWGlFKUaCuMGXBhbmRhcy5jb3JlLmluZGV4ZXMucmFuZ2WUjApSYW5nZUluZGV4lJOUfZQoaD5OjAVzdGFydJRLAIwEc3RvcJRLA4wEc3RlcJRLAXWGlFKUZYaUUpSMBF90eXCUjAlkYXRhZnJhbWWUjAlfbWV0YWRhdGGUXZSMBWF0dHJzlH2UjAZfZmxhZ3OUfZSMF2FsbG93c19kdXBsaWNhdGVfbGFiZWxzlIhzdWIu"
@@ -108,8 +109,8 @@
           }
         },
         "_used_recommender_ids": [
-          136033267232528,
-          136033267390560
+          135486501827344,
+          135486442010048
         ],
         "initial_recommender": {
           "type": "RandomRecommender",
@@ -165,15 +166,15 @@
         },
         "switch_after": 1
       },
-      "n_batches_done": 21,
-      "n_fits_done": 20,
-      "_measurements_exp": "gASVKwcAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsVhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojA9HYWxsaXVtIG5pdHJpZGWUjAdTaWxpY29ulIwPU2lsaWNvbiBjYXJiaWRllGghaCFoIWghaCBoIWggaB9oIGggaB9oIWgfaCFoIGghaCFoIWV0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsBSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsDSxWGlGgYjAJmOJSJiIeUUpQoSwOMATyUTk5OSv////9K/////0sAdJRiiUL4AQAA25jycxX2EUDNzMy0bc/dP83MzPRux9E/y3711xD58D9iJ8joG+/6P8cjuC/hCwJA9eZ8Kz8mAkAAAAAAAAAUQHS4Civg2wlAmpmZmZmZyT9fa3eGZTz3PwAAAAAAABRAmpmZmZmZyT+4oZQGNmwEQCskA4WaXAFAmpmZmZmZyT+pAm2tw+jMPwAAAAAAABRA3pLqfCVPBEBSiIgQNhMBQCfxxio7igBAx6F1fkpMdkAAgAtu5NOBQAAA6vIoE3RAP2ShCcnRckAAAAAAAMByQAAAAAAAwHJAC4T1emKddkAAAAAAAMByQDVkO6EzD3hAOW3WUt4qe0B31gygHJ6CQHwTv/LLZ39AJljemf/odkC3Zqk3q799QGh6jZtSRnZAAAAAAADAckANRZK9SJJ2QAAAAAAAwIJAWOCZVYZtdkA2iaJiHR13QFAUkuh63ndA4YLNlcFD8j8fB2YkrWHsPwUirNiNFfo/N+UlhdUS/j9yulYFoU8AQGjJSVPQXwBAIJpdYwxCBEAPfFIlAdjlP+k34MPzyQFApvfl5/bO+T+X6UNkG0rsP5RIL0gJkuU/JKEcGPPc+T9A8BNWcOX/P3f3S71dIQRAkvCXlZC29D/evHkNFcD8PwBpKqbzotQ/9UfSvQeoA0DZQ27z+6gEQIqU+P2//gRAlHSUYmglSwFLBEsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLAUsVhpRoGIwCaTiUiYiHlFKUKEsDaDFOTk5K/////0r/////SwB0lGKJQ6gBAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAEAAAAAAAAAAUAAAAAAAAABgAAAAAAAAAHAAAAAAAAAAgAAAAAAAAACQAAAAAAAAAKAAAAAAAAAAsAAAAAAAAADAAAAAAAAAANAAAAAAAAAA4AAAAAAAAADwAAAAAAAAAQAAAAAAAAABEAAAAAAAAAEgAAAAAAAAATAAAAAAAAABQAAAAAAAAAFQAAAAAAAACUdJRiaCVLBEsFSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSxWGlGgwiUOoAAAAAAAA8D8AAAAAAAAAQAAAAAAAAAhAAAAAAAAAEEAAAAAAAAAUQAAAAAAAABhAAAAAAAAAHEAAAAAAAAAgQAAAAAAAACJAAAAAAAAAJEAAAAAAAAAmQAAAAAAAAChAAAAAAAAAKkAAAAAAAAAsQAAAAAAAAC5AAAAAAAAAMEAAAAAAAAAxQAAAAAAAADJAAAAAAAAAM0AAAAAAAAA0QAAAAAAAAPh/lHSUYmglSwVLBksBh5RSlEsCh5RSlHSUXZQojBhwYW5kYXMuY29yZS5pbmRleGVzLmJhc2WUjApfbmV3X0luZGV4lJOUaFOMBUluZGV4lJOUfZQojARkYXRhlGgOaBFLAIWUaBOHlFKUKEsBSwaFlGgbiV2UKIwJc3Vic3RyYXRllIwNZ2FzX2Zsb3dfcmF0ZZSMC3RlbXBlcmF0dXJllIwQcmVmcmFjdGl2ZV9pbmRleJSMB0JhdGNoTnKUjAVGaXROcpRldJRijARuYW1llE51hpRSlGhVjBlwYW5kYXMuY29yZS5pbmRleGVzLnJhbmdllIwKUmFuZ2VJbmRleJSTlH2UKGhmTowFc3RhcnSUSwCMBHN0b3CUSxWMBHN0ZXCUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
+      "n_batches_done": 6,
+      "n_fits_done": 5,
+      "_measurements_exp": "gASVsgQAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKIwWcGFuZGFzLl9saWJzLmludGVybmFsc5SMD191bnBpY2tsZV9ibG9ja5STlIwVbnVtcHkuY29yZS5tdWx0aWFycmF5lIwMX3JlY29uc3RydWN0lJOUjAVudW1weZSMB25kYXJyYXmUk5RLAIWUQwFilIeUUpQoSwFLAUsGhpRoD4wFZHR5cGWUk5SMAk84lImIh5RSlChLA4wBfJROTk5K/////0r/////Sz90lGKJXZQojA9HYWxsaXVtIG5pdHJpZGWUjAdTaWxpY29ulGggaCBoIIwPU2lsaWNvbiBjYXJiaWRllGV0lGKMCGJ1aWx0aW5zlIwFc2xpY2WUk5RLAEsBSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsDSwaGlGgYjAJmOJSJiIeUUpQoSwOMATyUTk5OSv////9K/////0sAdJRiiUOQpp4iC3+nEUAzMzNDfnniPz3uRwsJd+I/NrgNaB924j8cmowRQi/2P5mZmavhGvs/kh+90HZ8f0AAAE0Mkkt0QHzW6jExOnlA9wk8h+oNfkAMy5EbpTR5QAAA7I6FX3hAUTOWEH597j840TPQKGz6P7G9wxtJbv4/rDyZzzfZ+T9rW68xaEYCQC3/UPQZ6ARAlHSUYmglSwFLBEsBh5RSlEsCh5RSlGgLaA5oEUsAhZRoE4eUUpQoSwFLAUsGhpRoGIwCaTiUiYiHlFKUKEsDaDFOTk5K/////0r/////SwB0lGKJQzABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAEAAAAAAAAAAUAAAAAAAAABgAAAAAAAACUdJRiaCVLBEsFSwGHlFKUSwKHlFKUaAtoDmgRSwCFlGgTh5RSlChLAUsBSwaGlGgwiUMwAAAAAAAA8D8AAAAAAAAAQAAAAAAAAAhAAAAAAAAAEEAAAAAAAAAUQAAAAAAAAPh/lHSUYmglSwVLBksBh5RSlEsCh5RSlHSUXZQojBhwYW5kYXMuY29yZS5pbmRleGVzLmJhc2WUjApfbmV3X0luZGV4lJOUaFOMBUluZGV4lJOUfZQojARkYXRhlGgOaBFLAIWUaBOHlFKUKEsBSwaFlGgbiV2UKIwJc3Vic3RyYXRllIwNZ2FzX2Zsb3dfcmF0ZZSMC3RlbXBlcmF0dXJllIwQcmVmcmFjdGl2ZV9pbmRleJSMB0JhdGNoTnKUjAVGaXROcpRldJRijARuYW1llE51hpRSlGhVjBlwYW5kYXMuY29yZS5pbmRleGVzLnJhbmdllIwKUmFuZ2VJbmRleJSTlH2UKGhmTowFc3RhcnSUSwCMBHN0b3CUSwaMBHN0ZXCUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
       "_cached_recommendation": "gASVWwEAAAAAAACMEXBhbmRhcy5jb3JlLmZyYW1llIwJRGF0YUZyYW1llJOUKYGUfZQojARfbWdylIwecGFuZGFzLmNvcmUuaW50ZXJuYWxzLm1hbmFnZXJzlIwMQmxvY2tNYW5hZ2VylJOUKV2UKIwYcGFuZGFzLmNvcmUuaW5kZXhlcy5iYXNllIwKX25ld19JbmRleJSTlIwZcGFuZGFzLmNvcmUuaW5kZXhlcy5yYW5nZZSMClJhbmdlSW5kZXiUk5R9lCiMBG5hbWWUTowFc3RhcnSUSwCMBHN0b3CUSwCMBHN0ZXCUSwF1hpRSlGgMaA99lChoEU5oEksAaBNLAGgUSwF1hpRSlGWGlFKUjARfdHlwlIwJZGF0YWZyYW1llIwJX21ldGFkYXRhlF2UjAVhdHRyc5R9lIwGX2ZsYWdzlH2UjBdhbGxvd3NfZHVwbGljYXRlX2xhYmVsc5SIc3ViLg==",
       "version": "0.11.2"
     },
     "figures": [
       {
-        "label": "Progress",
+        "label": "refractive_index",
         "figure": {
           "data": [
             {
@@ -184,45 +185,15 @@
                 3,
                 4,
                 5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21
+                6
               ],
               "y": [
-                1.141542039076903,
-                0.8869233809384446,
-                1.630262228371181,
-                1.8795981598944544,
-                2.0388813416569116,
-                2.0467840678112914,
-                2.532250191015251,
-                0.6826177338551832,
-                2.223609476356604,
-                1.6130284365203607,
-                0.8840462644869146,
-                0.6740766916139074,
-                1.6164427701824673,
-                1.9935153353135462,
-                2.516292075043505,
-                1.294571480130831,
-                1.796895077360936,
-                0.3224457857810563,
-                2.4570460157201475,
-                2.5825118082070557,
-                2.624389633320395
+                0.9528189014396081,
+                1.6514061100870787,
+                1.901925190406342,
+                1.615531741077386,
+                2.284378421939825,
+                2.6133307540148025
               ],
               "type": "scatter"
             }
@@ -1061,7 +1032,7 @@
         }
       },
       {
-        "label": "Steps",
+        "label": "Progress",
         "figure": {
           "data": [
             {
@@ -1070,112 +1041,37 @@
                 "values": [
                   [
                     "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon",
-                    "Silicon carbide",
-                    "Gallium nitride",
-                    "Silicon carbide",
-                    "Gallium nitride",
                     "Silicon",
                     "Silicon",
-                    "Gallium nitride",
                     "Silicon",
-                    "Silicon carbide",
-                    "Silicon",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
-                    "Silicon carbide",
                     "Silicon",
                     "Gallium nitride"
                   ],
                   [
-                    2.0674956647836953,
-                    2.13438046375908,
-                    2.5386457213484013,
-                    5.0,
-                    0.22585340469415385,
-                    0.2,
-                    2.170216597708096,
-                    2.5528374208554077,
-                    0.2,
-                    5.0,
-                    1.4522452595326383,
-                    0.2,
-                    3.232361160530724,
-                    5.0,
-                    2.2686751744739646,
-                    2.255800602728843,
-                    1.683376225761514,
-                    1.0608070789239032,
-                    0.27779745012521745,
-                    0.46578543335199357,
-                    4.490316211397125
+                    1.6940628722310065,
+                    1.3865376172558461,
+                    0.5769192726418229,
+                    0.5770306797343846,
+                    0.5773307144641876,
+                    4.4135705699806405
                   ],
                   [
-                    381.9050069528794,
-                    369.8196741437017,
-                    358.84529647930094,
-                    600.0,
-                    361.142758914343,
-                    300.0,
-                    356.3951678778162,
-                    475.97930113003116,
-                    366.5624025998426,
-                    502.48729204787355,
-                    595.76397714643,
-                    434.67927821884547,
-                    384.9501049346903,
-                    300.0,
-                    361.8365430441342,
-                    300.0,
-                    300.0,
-                    301.11158144992436,
-                    321.1974972859025,
-                    570.4865380190313,
-                    356.768187007427
+                    389.97010700404644,
+                    403.29030949545336,
+                    480.86975787594514,
+                    403.6370104955056,
+                    324.72315626218915,
+                    503.7790076625471
                   ],
                   [
-                    2.624389633320395,
-                    2.5825118082070557,
-                    2.4570460157201475,
-                    0.3224457857810563,
-                    1.796895077360936,
-                    1.294571480130831,
-                    2.516292075043505,
-                    1.9935153353135462,
-                    1.6164427701824673,
-                    0.6740766916139074,
-                    0.8840462644869146,
-                    1.6130284365203607,
-                    2.223609476356604,
-                    0.6826177338551832,
-                    2.532250191015251,
-                    2.0467840678112914,
-                    2.0388813416569116,
-                    1.8795981598944544,
-                    1.630262228371181,
-                    0.8869233809384446,
-                    1.141542039076903
+                    2.6133307540148025,
+                    2.284378421939825,
+                    1.615531741077386,
+                    1.901925190406342,
+                    1.6514061100870787,
+                    0.9528189014396081
                   ],
                   [
-                    21,
-                    20,
-                    19,
-                    18,
-                    17,
-                    16,
-                    15,
-                    14,
-                    13,
-                    12,
-                    11,
-                    10,
-                    9,
-                    8,
-                    7,
                     6,
                     5,
                     4,
@@ -1185,21 +1081,6 @@
                   ],
                   [
                     null,
-                    20.0,
-                    19.0,
-                    18.0,
-                    17.0,
-                    16.0,
-                    15.0,
-                    14.0,
-                    13.0,
-                    12.0,
-                    11.0,
-                    10.0,
-                    9.0,
-                    8.0,
-                    7.0,
-                    6.0,
                     5.0,
                     4.0,
                     3.0,
@@ -2050,42 +1931,29 @@
         }
       }
     ],
-    "searchspace": {
-      "discrete": {
-        "parameters": [
-          {
-            "name": "substrate",
-            "type": "CategoricalParameter",
-            "values": [
-              "Gallium nitride",
-              "Silicon",
-              "Silicon carbide"
-            ],
-            "encoding": "OHE"
-          }
+    "parameters": [
+      {
+        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.CategoricalParameter",
+        "name": "substrate",
+        "values": [
+          "Gallium nitride",
+          "Silicon",
+          "Silicon carbide"
         ]
       },
-      "continuous": {
-        "parameters": [
-          {
-            "name": "gas_flow_rate",
-            "type": "NumericalContinuousParameter",
-            "bounds": {
-              "lower": 0.2,
-              "upper": 5.0
-            }
-          },
-          {
-            "name": "temperature",
-            "type": "NumericalContinuousParameter",
-            "bounds": {
-              "lower": 300.0,
-              "upper": 600.0
-            }
-          }
-        ]
+      {
+        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.ContinuousParameter",
+        "name": "gas_flow_rate",
+        "lower_bound": 0.2,
+        "upper_bound": 5.0
+      },
+      {
+        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.ContinuousParameter",
+        "name": "temperature",
+        "lower_bound": 300.0,
+        "upper_bound": 600.0
       }
-    },
+    ],
     "objective": {
       "type": "SingleTargetObjective",
       "target": {
@@ -2110,13 +1978,68 @@
         "type": "NaiveHybridSpaceRecommender"
       }
     },
-    "optimization": {
-      "status": "Finished",
-      "n_steps": 21
-    },
-    "my_subsection": {
-      "my_quantity": "Test"
-    }
+    "steps": [
+      {
+        "values_used": {
+          "substrate": "Gallium nitride",
+          "gas_flow_rate": 4.4135705699806405,
+          "temperature": 503.7790076625471,
+          "refractive_index": 0.9528189014396081,
+          "BatchNr": 1,
+          "FitNr": 1.0
+        }
+      },
+      {
+        "values_used": {
+          "substrate": "Silicon",
+          "gas_flow_rate": 0.5773307144641876,
+          "temperature": 324.72315626218915,
+          "refractive_index": 1.6514061100870787,
+          "BatchNr": 2,
+          "FitNr": 2.0
+        }
+      },
+      {
+        "values_used": {
+          "substrate": "Silicon",
+          "gas_flow_rate": 0.5770306797343846,
+          "temperature": 403.6370104955056,
+          "refractive_index": 1.901925190406342,
+          "BatchNr": 3,
+          "FitNr": 3.0
+        }
+      },
+      {
+        "values_used": {
+          "substrate": "Silicon",
+          "gas_flow_rate": 0.5769192726418229,
+          "temperature": 480.86975787594514,
+          "refractive_index": 1.615531741077386,
+          "BatchNr": 4,
+          "FitNr": 4.0
+        }
+      },
+      {
+        "values_used": {
+          "substrate": "Silicon",
+          "gas_flow_rate": 1.3865376172558461,
+          "temperature": 403.29030949545336,
+          "refractive_index": 2.284378421939825,
+          "BatchNr": 5,
+          "FitNr": 5.0
+        }
+      },
+      {
+        "values_used": {
+          "substrate": "Silicon carbide",
+          "gas_flow_rate": 1.6940628722310065,
+          "temperature": 389.97010700404644,
+          "refractive_index": 2.6133307540148025,
+          "BatchNr": 6,
+          "FitNr": null
+        }
+      }
+    ]
   },
   "results": {}
 }

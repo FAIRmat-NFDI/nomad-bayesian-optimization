@@ -27,7 +27,7 @@ maintainers = [
 license = { file = "LICENSE" }
 dependencies = [
     "nomad-lab>=1.3.0",
-    "baybe",
+    "baybe>=0.11.2",
     "structlog",
 ]
 
@@ -66,7 +66,6 @@ exclude = [
 # Same as Black.
 line-length = 88
 indent-width = 4
-
 
 [tool.ruff.lint]
 select = [

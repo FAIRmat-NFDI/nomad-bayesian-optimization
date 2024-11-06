@@ -16,22 +16,17 @@ app = App(
     search_quantities=SearchQuantities(include=[f'*#{schema_name}']),
     columns=[
         Column(quantity='entry_create_time', selected=True),
-        Column(quantity=f'data.optimization.finished#{schema_name}', selected=True),
-        Column(quantity=f'data.optimization.status#{schema_name}', selected=True),
+        Column(quantity=f'data.status#{schema_name}', selected=True),
         Column(quantity=f'data.objective.target.name#{schema_name}', selected=True),
         Column(
-            quantity=f'data.searchspace.continuous.parameters[*].name#{schema_name}',
-            selected=True,
-        ),
-        Column(
-            quantity=f'data.steps[*].sources[*].materials[*].substance_name#{schema_name}',
+            quantity=f'data.parameters[*].name#{schema_name}',
             selected=True,
         ),
     ],
     menu=Menu(
         items=[
             MenuItemTerms(
-                quantity=f'data.optimization.status#{schema_name}',
+                quantity=f'data.status#{schema_name}',
                 show_input=False,
             ),
             Menu(
@@ -67,33 +62,10 @@ app = App(
             ),
             Menu(
                 size='xs',
-                title='Search space',
+                title='Parameters',
                 items=[
-                    Menu(
-                        title='Discrete',
-                        items=[
-                            MenuItemTerms(
-                                quantity=f'data.searchspace.discrete.parameters.name#{schema_name}',
-                            )
-                        ],
-                    ),
-                    Menu(
-                        title='Continuous',
-                        items=[
-                            MenuItemTerms(
-                                quantity=f'data.searchspace.continuous.parameters.name#{schema_name}',
-                            ),
-                            MenuItemHistogram(
-                                x=Axis(
-                                    search_quantity=f'data.searchspace.continuous.parameters.bounds.lower#{schema_name}'
-                                )
-                            ),
-                            MenuItemHistogram(
-                                x=Axis(
-                                    search_quantity=f'data.searchspace.continuous.parameters.bounds.upper#{schema_name}'
-                                )
-                            ),
-                        ],
+                    MenuItemTerms(
+                        quantity=f'data.parameters.name#{schema_name}',
                     ),
                 ],
             ),
@@ -122,16 +94,6 @@ app = App(
                             search_quantity=f'data.recommender.sampling_percentage#{schema_name}'
                         )
                     ),
-                ],
-            ),
-            Menu(
-                title='Optimization',
-                items=[
-                    MenuItemHistogram(
-                        x=Axis(
-                            search_quantity=f'data.optimization.n_steps#{schema_name}'
-                        )
-                    )
                 ],
             ),
         ]
