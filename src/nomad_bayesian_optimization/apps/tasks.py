@@ -15,37 +15,39 @@ app = App(
     category='Bayesian Optimization',
     search_quantities=SearchQuantities(include=[f'*#{schema_name}']),
     columns=[
-        Column(quantity='entry_create_time', selected=True),
-        Column(quantity=f'data.status#{schema_name}', selected=True),
-        Column(quantity=f'data.objective.target.name#{schema_name}', selected=True),
+        Column(search_quantity='entry_create_time', selected=True),
+        Column(search_quantity=f'data.status#{schema_name}', selected=True),
         Column(
-            quantity=f'data.parameters[*].name#{schema_name}',
+            search_quantity=f'data.objective.target.name#{schema_name}', selected=True
+        ),
+        Column(
+            search_quantity=f'data.parameters[*].name#{schema_name}',
             selected=True,
         ),
     ],
     menu=Menu(
         items=[
             MenuItemTerms(
-                quantity=f'data.status#{schema_name}',
+                search_quantity=f'data.status#{schema_name}',
                 show_input=False,
             ),
             Menu(
                 title='Objective',
                 items=[
                     MenuItemTerms(
-                        quantity=f'data.objective.target.type#{schema_name}',
+                        search_quantity=f'data.objective.target.type#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        quantity=f'data.objective.target.name#{schema_name}',
+                        search_quantity=f'data.objective.target.name#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        quantity=f'data.objective.target.mode#{schema_name}',
+                        search_quantity=f'data.objective.target.mode#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        quantity=f'data.objective.target.transformation#{schema_name}',
+                        search_quantity=f'data.objective.target.transformation#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemHistogram(
@@ -65,7 +67,7 @@ app = App(
                 title='Parameters',
                 items=[
                     MenuItemTerms(
-                        quantity=f'data.parameters.name#{schema_name}',
+                        search_quantity=f'data.parameters.name#{schema_name}',
                     ),
                 ],
             ),

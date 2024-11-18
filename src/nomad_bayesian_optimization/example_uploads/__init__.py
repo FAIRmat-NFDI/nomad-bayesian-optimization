@@ -7,7 +7,7 @@ getting_started = ExampleUploadEntryPoint(
     Example upload that contains a Jupyter notebook demonstrating the basics of
     Bayesian optimization.
     """),
-    path='example_uploads/getting_started',
+    path='example_uploads/getting_started/*',
     category='Bayesian optimization',
 )
 
@@ -17,6 +17,6 @@ optimization_tasks = ExampleUploadEntryPoint(
     Contains a series of optimization runs for exploring what bayesian optimization data
 	looks like.
     """),
-    path='example_uploads/optimization_tasks',
+    path='example_uploads/optimization_tasks/*',
     category='Bayesian optimization',
 )
