@@ -1,6 +1,5 @@
 import pandas as pd
 import plotly.graph_objects as go
-from baybe.serialization.utils import deserialize_dataframe
 from nomad.datamodel.data import ArchiveSection, Schema
 from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
@@ -186,76 +185,6 @@ class BayesianOptimization(PlotSection, Schema):
         type=int,
         description='Number of steps in optimization.',
     )
-    baybe_campaign = Quantity(
-        type=JSON,
-        description="""
-        Contains the full JSON serialized BayBE campaign that represents this
-        Bayesian Optimization.
-        """,
-    )
-
-    def from_baybe(campaign):
-        """Instantiate a BayesianOptimization from a BayBE campaign."""
-        dictionary = campaign.to_dict()
-        result = BayesianOptimization()
-        result.baybe_campaign = dictionary.copy()
-
-        searchspace: dict = dictionary.pop('searchspace', {})
-        discrete: dict = searchspace.get('discrete', {})
-        continuous: dict = searchspace.get('continuous', {})
-        ps = discrete.get('parameters', []) + continuous.get('parameters', [])
-        parameters = []
-        for parameter in ps:
-            if parameter['type'] == 'CategoricalParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.CategoricalParameter'
-                        ),
-                        'name': parameter['name'],
-                        'values': parameter['values'],
-                    }
-                )
-            elif parameter['type'] == 'NumericalDiscreteParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.NumericalDiscreteParameter'
-                        ),
-                        'name': parameter['name'],
-                        'values': parameter['values'],
-                    }
-                )
-            elif parameter['type'] == 'NumericalContinuousParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.ContinuousParameter'
-                        ),
-                        'name': parameter['name'],
-                        'lower_bound': parameter['bounds']['lower'],
-                        'upper_bound': parameter['bounds']['upper'],
-                    }
-                )
-            elif parameter['type'] == 'SubstanceParameter':
-                raise NotImplementedError('SubstanceParameter not implemented')
-        dictionary['parameters'] = parameters
-        result.m_update_from_dict(dictionary)
-
-        # Populate optimization steps
-        df = deserialize_dataframe(dictionary['_measurements_exp'])
-        for i, step in df.iterrows():
-            result.steps.append(Step(values_used=step.to_dict()))
-
-        # Populate suggested step
-        df = deserialize_dataframe(dictionary['_cached_recommendation'])
-        if not df.empty:
-            result.steps.append(Step(value_suggestion=df.to_dict()))
-
-        return result
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
@@ -274,12 +203,11 @@ class BayesianOptimization(PlotSection, Schema):
                 steps_list.append(value)
         steps_df = pd.DataFrame.from_dict(steps_list)
 
-        # Create a separate plot for each objective. TODO: The number of plots
-        # to create should probably be limited, or at least the number that are
-        # shown should be limited.
+        # Create a separate plot for each objective. TODO: The number of plots to create
+        # should probably be limited, or at least the number that are shown should be
+        # limited.
         targets = [self.objective.target]
         for target in targets:
-            # Generate a plot that shows how the optimization progresses each step
             target_name = target.name
             figure = go.Figure()
             figure.add_trace(

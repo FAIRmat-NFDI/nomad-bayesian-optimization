@@ -5,7 +5,7 @@ from nomad.metainfo import MEnum, Quantity, SchemaPackage
 m_package = SchemaPackage()
 
 
-class CVDExperiment(Schema):
+class CVD(Schema):
     """Experiment for growing thin films using chemical vapor deposition."""
 
     substrate = Quantity(
@@ -33,4 +33,5 @@ class CVDExperiment(Schema):
     )
 
 
+m_package.__init_metainfo__()
 m_package.__init_metainfo__()

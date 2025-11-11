@@ -10,19 +10,31 @@ class BayesianOptimizationPackageEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
-class ExperimentsPackageEntryPoint(SchemaPackageEntryPoint):
+class CVDPackageEntryPoint(SchemaPackageEntryPoint):
     def load(self):
-        from nomad_bayesian_optimization.schema_packages.experiments import m_package
+        from nomad_bayesian_optimization.schema_packages.cvd import m_package
 
         return m_package
 
 
-experiments = ExperimentsPackageEntryPoint(
-    name='Experiments',
-    description='Dummy schema package for experiments.',
+class ELNTestPackageEntryPoint(SchemaPackageEntryPoint):
+    def load(self):
+        from nomad_bayesian_optimization.schema_packages.eln_test import m_package
+
+        return m_package
+
+
+cvd = CVDPackageEntryPoint(
+    name='CVD',
+    description='Schema package for chemical vapor deposition experiments.',
 )
 
 bayesian_optimization = BayesianOptimizationPackageEntryPoint(
     name='Bayesian Optimization',
     description='Schema package for Bayesian optimization runs.',
+)
+
+eln_test = ELNTestPackageEntryPoint(
+    name='ELN Test',
+    description='Schema package for testing ELN features.',
 )
