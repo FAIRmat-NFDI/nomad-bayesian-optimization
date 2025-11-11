@@ -16,6 +16,7 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
 
         from nomad_bayesian_optimization.actions.bayesian_optimization.activities import (
             inference,
+            write_campaign_to_schema,
         )
         from nomad_bayesian_optimization.actions.bayesian_optimization.workflows import (
             BayesianOptimizationWorkflow,
@@ -24,7 +25,7 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
         return Action(
             task_queue=self.task_queue,
             workflow=BayesianOptimizationWorkflow,
-            activities=[inference],
+            activities=[inference, write_campaign_to_schema],
         )
 
 

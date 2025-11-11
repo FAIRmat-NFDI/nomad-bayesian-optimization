@@ -97,7 +97,7 @@ class Target(MSection):
     type = Quantity(type=MEnum('NumericalTarget'))
     name = Quantity(type=str)
     mode = Quantity(type=MEnum('MATCH'))
-    transformation = Quantity(type=MEnum('BELL'))
+    transformation = Quantity(type=MEnum("BellTransformation"))
     bounds = SubSection(section_def=Bounds)
 
 

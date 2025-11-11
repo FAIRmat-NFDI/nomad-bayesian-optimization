@@ -6,8 +6,16 @@ class BayesianOptimizationInput(BaseModel):
 
     upload_id: str = Field(
         ...,
-        description='Unique identifier for the upload associated with the workflow.',
+        description="Unique identifier for the upload associated with the workflow.",
     )
     user_id: str = Field(
-        ..., description='Unique identifier for the user who initiated the workflow.'
+        ..., description="Unique identifier for the user who initiated the workflow."
     )
+    refractive_index_target: float = Field(
+        ..., description="The target refractive index for the optimization."
+    )
+
+
+class CreateBayesianOptimizationEntryInput(BaseModel):
+    upload_id: str
+    campaign_json: str
