@@ -1,12 +1,6 @@
-from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
-
-
-class Substrate(Enum):
-    SIC = 'Silicon carbide'
-    SI = 'Silicon 2'
-    GaN = 'Gallium nitride'
 
 
 class BatchCVDInput(BaseModel):
@@ -14,13 +8,18 @@ class BatchCVDInput(BaseModel):
 
     upload_id: str = Field(
         ...,
-        description='Unique identifier for the upload associated with the workflow.',
+        description="Unique identifier for the upload associated with the workflow.",
+    )
+    user_id: str = Field(
+        ..., description="Unique identifier for the user who initiated the workflow."
     )
     n_entries: int = Field(
         ...,
-        description='Number of CVD entries to create in the batch.',
+        description="Number of CVD entries to create in the batch.",
         gt=0,
     )
-    operator: str = Field(..., description='Device operator.')
+    operator: str = Field(..., description="Device operator.")
 
-    substrate: Substrate = Field(..., description='The used substrate material.')
+    substrate: Literal["Silicon carbide", "Silicon", "Gallium nitride"] = Field(
+        ..., description="The used substrate material."
+    )

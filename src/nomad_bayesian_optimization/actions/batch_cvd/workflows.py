@@ -23,5 +23,3 @@ class BatchCVDWorkflow:
         )
 
         return result
-
-        return result
