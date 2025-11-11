@@ -3,10 +3,10 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class Device(Enum):
-    DEVICE_1 = 'device_1'
-    DEVICE_2 = 'device_2'
-    DEVICE_3 = 'device_3'
+class Substrate(Enum):
+    SIC = 'Silicon carbide'
+    SI = 'Silicon 2'
+    GaN = 'Gallium nitride'
 
 
 class BatchCVDInput(BaseModel):
@@ -21,10 +21,6 @@ class BatchCVDInput(BaseModel):
         description='Number of CVD entries to create in the batch.',
         gt=0,
     )
-    operator: str = Field(
-        ..., description='Name of the operator performing the batch creation.'
-    )
+    operator: str = Field(..., description='Device operator.')
 
-    device: Device = Field(
-        ..., description='Device on which the batch creation is performed.'
-    )
+    substrate: Substrate = Field(..., description='The used substrate material.')

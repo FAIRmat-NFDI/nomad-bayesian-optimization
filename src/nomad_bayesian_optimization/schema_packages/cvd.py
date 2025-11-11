@@ -8,6 +8,13 @@ m_package = SchemaPackage()
 class CVD(Schema):
     """Experiment for growing thin films using chemical vapor deposition."""
 
+    operator = Quantity(
+        type=str,
+        a_eln=ELNAnnotation(
+            component=ELNComponentEnum.StringEditQuantity,
+        ),
+        description='The device operator',
+    )
     substrate = Quantity(
         type=MEnum('Silicon carbide', 'Silicon', 'Gallium nitride'),
         a_eln=ELNAnnotation(
@@ -33,5 +40,4 @@ class CVD(Schema):
     )
 
 
-m_package.__init_metainfo__()
 m_package.__init_metainfo__()
