@@ -1,5 +1,3 @@
-from nomad.actions import TaskQueue
-from pydantic import Field
 from temporalio import workflow
 
 with workflow.unsafe.imports_passed_through():
@@ -14,11 +12,11 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
     def load(self):
         from nomad.actions import Action
 
-        from nomad_bayesian_optimization.actions.bayesian_optimization.activities import (
+        from nomad_bayesian_optimization.actions.bayesian_optimization.activities import (  # noqa: E501
             inference,
             write_campaign_to_schema,
         )
-        from nomad_bayesian_optimization.actions.bayesian_optimization.workflows import (
+        from nomad_bayesian_optimization.actions.bayesian_optimization.workflows import (  # noqa: E501
             BayesianOptimizationWorkflow,
         )
 

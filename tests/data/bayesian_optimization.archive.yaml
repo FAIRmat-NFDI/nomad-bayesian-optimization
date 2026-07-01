@@ -1,0 +1,24 @@
+data:
+  m_def: nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization
+  status: Finished
+  parameters:
+    - m_def: nomad_bayesian_optimization.schema_packages.bayesian_optimization.NumericalDiscreteParameter
+      name: pressure
+      values: [1.0, 2.0, 3.0]
+    - m_def: nomad_bayesian_optimization.schema_packages.bayesian_optimization.CategoricalParameter
+      name: substrate
+      values: [Si, SiC, GaN]
+      encoding: OHE
+  objective:
+    type: SingleTargetObjective
+    targets:
+      - type: NumericalTarget
+        name: yield
+        minimize: false
+        transformation: BellTransformation
+  recommender:
+    type: TwoPhaseMetaRecommender
+  steps:
+    - values_used: {pressure: 1.0, substrate: Si, yield: 60.0, BatchNr: 1}
+    - values_used: {pressure: 2.0, substrate: SiC, yield: 75.0, BatchNr: 2}
+    - values_used: {pressure: 3.0, substrate: GaN, yield: 82.0, BatchNr: 3}

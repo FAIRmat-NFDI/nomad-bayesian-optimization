@@ -7,7 +7,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -16,8 +15,8 @@ classifiers = [
 name = "nomad-bayesian-optimization"
 description = "NOMAD plugin for driving experiments/simulations using bayesian optimization"
 version = "0.1.0"
-readme = "README.rst"
-requires-python = ">=3.9"
+readme = "README.md"
+requires-python = ">=3.10"
 authors = [
     { name = "Lauri Himanen", email = "lauri.himanen@physik.hu-berlin.de" },
 ]
@@ -34,10 +33,14 @@ dependencies = [
 Repository = "https://github.com/lauri-codes/nomad-bayesian-optimization"
 
 [project.optional-dependencies]
-dev = ["ruff", "pytest"]
-actions = [
-    "baybe>=0.11.2"
-]
+# baybe is required to parse serialized campaigns and to run the optimization
+# actions. It is kept optional (and lazily imported) so the schema/app parts of
+# the plugin remain usable without the heavy BayBE/torch stack.
+parsing = ["baybe>=0.15"]
+actions = ["baybe>=0.15", "temporalio"]
+# The action entry points are always registered, so loading the plugin (as
+# happens in the tests via nomad.client.parse) requires the actions stack too.
+dev = ["ruff", "pytest", "baybe>=0.15", "temporalio"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -69,6 +72,7 @@ exclude = [
 line-length = 88
 indent-width = 4
 
+
 [tool.ruff.lint]
 select = [
     # pycodestyle
@@ -85,12 +89,17 @@ select = [
 
 ignore = [
     "F403", # 'from module import *' used; unable to detect undefined names
+    "PLC0415", # `import` should be at the top-level of a file
+    "E501", # line too long
 ]
 
 fixable = ["ALL"]
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["PLC0415"] # import-outside-top-level
 
 # this is entirely optional, you can remove this if you wish to
 [tool.ruff.format]
@@ -116,7 +125,6 @@ where = ["src"]
 "nomad_bayesian_optimization.apps:bayesian_optimization_tasks" = "nomad_bayesian_optimization.apps:bayesian_optimization_tasks"
 "nomad_bayesian_optimization.schema_packages:cvd" = "nomad_bayesian_optimization.schema_packages:cvd"
 "nomad_bayesian_optimization.schema_packages:bayesian_optimization" = "nomad_bayesian_optimization.schema_packages:bayesian_optimization"
-"nomad_bayesian_optimization.schema_packages:eln_test" = "nomad_bayesian_optimization.schema_packages:eln_test"
 "nomad_bayesian_optimization.parsers:baybe" = "nomad_bayesian_optimization.parsers:baybe"
 "nomad_bayesian_optimization.example_uploads:getting_started" = "nomad_bayesian_optimization.example_uploads:getting_started"
 "nomad_bayesian_optimization.example_uploads:optimization_tasks" = "nomad_bayesian_optimization.example_uploads:optimization_tasks"

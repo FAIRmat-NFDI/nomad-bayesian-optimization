@@ -19,6 +19,9 @@ from nomad_bayesian_optimization.actions.bayesian_optimization.models import (
     BayesianOptimizationInput,
     CreateBayesianOptimizationEntryInput,
 )
+from nomad_bayesian_optimization.campaign_converter import (
+    campaign_dict_to_schema_dict,
+)
 from nomad_bayesian_optimization.schema_packages.cvd import CVD
 
 
@@ -44,7 +47,7 @@ def get_measurements_from_upload(upload_id: str, user_id: str) -> list:
 
     for file_path in archive_files:
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 archive_json = json.load(f)
 
             if (
@@ -89,17 +92,14 @@ async def inference(data: BayesianOptimizationInput):
     ]
     searchspace = SearchSpace.from_product(parameters)
 
-    # Define optimization objective
+    # Define optimization objective. A bell-shaped transformation is used to
+    # reward values close to the desired refractive index (BayBE >= 0.14 API).
     refractive_index_target = data.refractive_index_target
     refractive_index_sigma = 0.2
-    target = NumericalTarget(
+    target = NumericalTarget.match_bell(
         name="refractive_index",
-        mode="MATCH",
-        bounds=(
-            refractive_index_target - refractive_index_sigma,
-            refractive_index_target + refractive_index_sigma,
-        ),
-        transformation="BELL",
+        match_value=refractive_index_target,
+        sigma=refractive_index_sigma,
     )
     objective = SingleTargetObjective(target=target)
 
@@ -172,105 +172,17 @@ def get_samples(recommendations, refractive_index_target: float):
         return cvd_experiment
 
 
-def decode_dataframe(encoded_str):
-    """Decodes a base64, pickled pandas DataFrame."""
-    import base64
-    import pickle
-
-    decoded_bytes = base64.b64decode(encoded_str)
-    measurements_df = pickle.loads(decoded_bytes)
-    return measurements_df
-
-
 @activity.defn
 async def write_campaign_to_schema(data: CreateBayesianOptimizationEntryInput) -> str:
     """
     Transforms a BayBE campaign JSON into a dictionary that conforms to the
-    BayesianOptimization schema.
+    BayesianOptimization schema and writes it as a new entry.
     """
     campaign_data = json.loads(data.campaign_json)
-
-    # 1. Process parameters from searchspace
-    parameters = []
-    discrete_params = (
-        campaign_data.get("searchspace", {}).get("discrete", {}).get("parameters", [])
+    bayesian_optimization_dict = campaign_dict_to_schema_dict(
+        campaign_data, status="Finished"
     )
-    for param in discrete_params:
-        parameters.append(
-            {
-                "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.CategoricalParameter",
-                "name": param["name"],
-                "values": param["values"],
-            }
-        )
 
-    continuous_params = (
-        campaign_data.get("searchspace", {}).get("continuous", {}).get("parameters", [])
-    )
-    for param in continuous_params:
-        parameters.append(
-            {
-                "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.ContinuousParameter",
-                "name": param["name"],
-                "lower_bound": param["bounds"]["lower"],
-                "upper_bound": param["bounds"]["upper"],
-            }
-        )
-
-    # 2. Process objective
-    objective_data = campaign_data.get("objective", {})
-    target_data = objective_data.get("target", {})
-    transformation_data = target_data.get("transformation", {})
-    center = transformation_data.get("center", 0)
-    sigma = transformation_data.get("sigma", 0)
-
-    objective = {
-        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.Objective",
-        "type": objective_data.get("type"),
-        "target": {
-            "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.Target",
-            "type": target_data.get("type"),
-            "name": target_data.get("name"),
-            "mode": target_data.get("mode"),
-            "transformation": transformation_data.get("type"),
-            "bounds": {
-                "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.Bounds",
-                "lower": center - sigma,
-                "upper": center + sigma,
-            },
-        },
-    }
-
-    # 3. Process recommender (simplified version)
-    recommender_data = campaign_data.get("recommender", {})
-    recommender = {
-        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.Recommender",
-        "type": recommender_data.get("type"),
-    }
-
-    # 4. Process steps from measurements
-    steps = []
-    measurements_exp_encoded = campaign_data.get("measurements_exp")
-    if measurements_exp_encoded:
-        measurements_df = decode_dataframe(measurements_exp_encoded)
-        for _, row in measurements_df.iterrows():
-            steps.append(
-                {
-                    "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.Step",
-                    "values_used": row.to_dict(),
-                }
-            )
-
-    # 5. Assemble the final dictionary
-    bayesian_optimization_dict = {
-        "m_def": "nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization",
-        "status": "Finished",
-        "parameters": parameters,
-        "objective": objective,
-        "recommender": recommender,
-        "steps": steps,
-        "n_steps": len(steps),
-    }
     upload = Upload.get(data.upload_id)
     context = ServerContext(upload)
     entry_path = "bayesian_optimization.archive.json"

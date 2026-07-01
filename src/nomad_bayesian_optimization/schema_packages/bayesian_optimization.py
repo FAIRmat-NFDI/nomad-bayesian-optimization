@@ -17,7 +17,7 @@ m_package = SchemaPackage()
 
 
 class Parameter(ArchiveSection):
-    """Parameter."""
+    """A single optimization parameter (one dimension of the search space)."""
 
     name = Quantity(
         type=str,
@@ -34,7 +34,7 @@ class Parameter(ArchiveSection):
 
 
 class ContinuousParameter(Parameter):
-    """Continuous parameter."""
+    """A continuous numerical parameter defined by a closed interval."""
 
     lower_bound = Quantity(
         type=float,
@@ -47,28 +47,45 @@ class ContinuousParameter(Parameter):
 
 
 class DiscreteParameter(Parameter):
-    """Discrete parameter."""
+    """Base class for parameters with a finite set of allowed values."""
 
     pass
 
 
 class NumericalDiscreteParameter(DiscreteParameter):
+    """A numerical parameter with a finite set of allowed values."""
+
     values = Quantity(
         type=float,
         shape=['*'],
         a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
-    )  # TODO populate values from m_def
+    )
+    tolerance = Quantity(
+        type=float,
+        description="""
+        Maximum allowed deviation of a measured value from a discrete value for
+        it to still be recognized as that value.
+        """,
+    )
 
 
 class CategoricalParameter(DiscreteParameter):
+    """A parameter with a finite set of categorical (labelled) values."""
+
     values = Quantity(
         type=str,
         shape=['*'],
         a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
-    )  # TODO populate values from m_def
+    )
+    encoding = Quantity(
+        type=str,
+        description='Encoding used to represent the categories numerically.',
+    )
 
 
 class BoSubstance(ArchiveSection):
+    """A chemical substance identified by a name and a SMILES string."""
+
     name = Quantity(
         type=str,
         a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
@@ -80,13 +97,24 @@ class BoSubstance(ArchiveSection):
 
 
 class SubstanceParameter(DiscreteParameter):
+    """A parameter whose values are chemical substances (name + SMILES)."""
+
     values = SubSection(
         section_def=BoSubstance,
         repeats=True,
     )
+    encoding = Quantity(
+        type=str,
+        description="""
+        Encoding used to represent the substances numerically (e.g. MORDRED,
+        RDKIT, MORGAN_FP).
+        """,
+    )
 
 
 class Bounds(MSection):
+    """A numerical interval."""
+
     lower = Quantity(
         type=float,
         a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
@@ -95,47 +123,85 @@ class Bounds(MSection):
 
 
 class Target(MSection):
-    """The target specification for the optimization."""
+    """A single optimization target."""
 
-    type = Quantity(type=MEnum('NumericalTarget'))
+    type = Quantity(
+        type=str,
+        description='The BayBE target class name (e.g. NumericalTarget).',
+    )
     name = Quantity(type=str)
-    mode = Quantity(type=MEnum('MATCH'))
-    transformation = Quantity(type=MEnum('BellTransformation'))
+    minimize = Quantity(
+        type=bool,
+        description='Whether the target is minimized (True) or maximized (False).',
+    )
+    transformation = Quantity(
+        type=str,
+        description="""
+        Name of the transformation applied to the raw target values before
+        optimization (e.g. BellTransformation, AffineTransformation).
+        """,
+    )
+    transformation_parameters = Quantity(
+        type=JSON,
+        description='Full serialized transformation, including its parameters.',
+    )
+    weight = Quantity(
+        type=float,
+        description="""
+        Relative weight of this target within a multi-target (desirability)
+        objective.
+        """,
+    )
     bounds = SubSection(section_def=Bounds)
 
 
 class Objective(MSection):
-    type = Quantity(type=MEnum('SingleTargetObjective'))
-    target = SubSection(section_def=Target)
+    """The optimization objective, possibly combining several targets."""
+
+    type = Quantity(
+        type=MEnum(
+            'SingleTargetObjective',
+            'DesirabilityObjective',
+            'ParetoObjective',
+        )
+    )
+    scalarizer = Quantity(
+        type=str,
+        description="""
+        Scalarizer used to combine multiple targets in a desirability objective
+        (e.g. GEOM_MEAN, MEAN).
+        """,
+    )
+    targets = SubSection(section_def=Target, repeats=True)
 
 
 class KernelFactory(MSection):
-    type = Quantity(type=MEnum('DefaultKernelFactory'))
+    type = Quantity(type=str)
 
 
 class SurrogateModel(MSection):
-    type = Quantity(type=MEnum('GaussianProcessSurrogate'))
-    kernel_factor = SubSection(section_def=KernelFactory)
+    type = Quantity(type=str)
+    kernel_factory = SubSection(section_def=KernelFactory)
 
 
 class AcquisitionFunction(MSection):
-    type = Quantity(type=MEnum('qExpectedImprovement'))
+    type = Quantity(type=str)
 
 
 class Recommender(MSection):
-    type = Quantity(
-        type=MEnum(
-            'TwoPhaseMetaRecommender',
-            'NaiveHybridSpaceRecommender',
-            'RandomRecommender',
-        )
-    )
+    """The recommender (strategy) used to suggest new experiments."""
+
+    type = Quantity(type=str)
     surrogate_model = SubSection(section_def=SurrogateModel)
     initial_recommender = SubSection(section_def='Recommender')
     recommender = SubSection(section_def='Recommender')
     acquisition_function = SubSection(section_def=AcquisitionFunction)
-    hybrid_sampler = Quantity(type=MEnum('Farthest'))
+    hybrid_sampler = Quantity(type=str)
     sampling_percentage = Quantity(type=float)
+    config = Quantity(
+        type=JSON,
+        description='Full serialized recommender configuration.',
+    )
 
 
 class Step(MSection):
@@ -149,11 +215,11 @@ class Step(MSection):
         a_eln=dict(component='ReferenceEditQuantity'),
     )
     values_used = Quantity(
-        type=JSON, desription='The values used in the optimization procedure.'
+        type=JSON, description='The values used in the optimization procedure.'
     )
     values_recommended = Quantity(
         type=JSON,
-        desription="""
+        description="""
         The values recommended by the optimization procedure. Note that it is not always
         possible to use these values in real experiments, and the final values that were
         used should be recorded in `values_used`.
@@ -197,25 +263,34 @@ class BayesianOptimization(PlotSection, Schema):
         if not self.steps:
             return
 
-        # Gather information from the steps into a single list
-        figures = []
+        # Gather the values from each step into a single dataframe.
         steps_list = []
         for step in self.steps:
             value = step.values_used or step.values_recommended
             if value:
                 steps_list.append(value)
+        if not steps_list:
+            return
         steps_df = pd.DataFrame.from_dict(steps_list)
 
-        # Create a separate plot for each objective. TODO: The number of plots to create
-        # should probably be limited, or at least the number that are shown should be
-        # limited.
-        targets = [self.objective.target]
+        # Determine the x-axis for the progress plot: use the BayBE batch number
+        # if it is available, otherwise fall back to a running step index.
+        if 'BatchNr' in steps_df.columns:
+            x_values = steps_df['BatchNr']
+        else:
+            x_values = list(range(1, len(steps_df) + 1))
+
+        # Create a separate progress plot for each target of the objective.
+        figures = []
+        targets = (self.objective.targets if self.objective else None) or []
         for target in targets:
             target_name = target.name
+            if not target_name or target_name not in steps_df.columns:
+                continue
             figure = go.Figure()
             figure.add_trace(
                 go.Scatter(
-                    x=steps_df['BatchNr'],
+                    x=x_values,
                     y=steps_df[target_name],
                     mode='lines+markers',
                 )
@@ -232,16 +307,16 @@ class BayesianOptimization(PlotSection, Schema):
 
         # Create a table of the traversed search space from last to first step.
         # Recommended, but not yet tried values are added to the table as well.
-        steps_df = steps_df[::-1]
+        table_df = steps_df[::-1]
         figure = go.Figure(
             data=[
                 go.Table(
                     header=dict(
-                        values=list(steps_df.columns),
+                        values=list(table_df.columns),
                         align='left',
                     ),
                     cells=dict(
-                        values=steps_df.transpose().values.tolist(),
+                        values=table_df.transpose().values.tolist(),
                         align='left',
                     ),
                 )
@@ -252,7 +327,9 @@ class BayesianOptimization(PlotSection, Schema):
             margin=dict(l=0, r=0, t=0, b=0),
             width=800,
         )
-        figures.append(PlotlyFigure(label='Progress', figure=figure.to_plotly_json()))
+        figures.append(
+            PlotlyFigure(label='Search space', figure=figure.to_plotly_json())
+        )
         self.figures = figures
 
 

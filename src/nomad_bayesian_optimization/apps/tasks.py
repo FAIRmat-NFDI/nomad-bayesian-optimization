@@ -18,7 +18,8 @@ app = App(
         Column(search_quantity='entry_create_time', selected=True),
         Column(search_quantity=f'data.status#{schema_name}', selected=True),
         Column(
-            search_quantity=f'data.objective.target.name#{schema_name}', selected=True
+            search_quantity=f'data.objective.targets[*].name#{schema_name}',
+            selected=True,
         ),
         Column(
             search_quantity=f'data.parameters[*].name#{schema_name}',
@@ -35,29 +36,29 @@ app = App(
                 title='Objective',
                 items=[
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.type#{schema_name}',
+                        search_quantity=f'data.objective.type#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.name#{schema_name}',
+                        search_quantity=f'data.objective.targets.type#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.mode#{schema_name}',
+                        search_quantity=f'data.objective.targets.name#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.transformation#{schema_name}',
+                        search_quantity=f'data.objective.targets.transformation#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemHistogram(
                         x=Axis(
-                            search_quantity=f'data.objective.target.bounds.lower#{schema_name}'
+                            search_quantity=f'data.objective.targets.bounds.lower#{schema_name}'
                         )
                     ),
                     MenuItemHistogram(
                         x=Axis(
-                            search_quantity=f'data.objective.target.bounds.upper#{schema_name}'
+                            search_quantity=f'data.objective.targets.bounds.upper#{schema_name}'
                         )
                     ),
                 ],

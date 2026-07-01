@@ -1,0 +1,41 @@
+{
+  "type": "Campaign",
+  "searchspace": {
+    "discrete": {
+      "parameters": [
+        {
+          "type": "SubstanceParameter",
+          "name": "solvent",
+          "data": {
+            "water": "O",
+            "methanol": "CO",
+            "ethanol": "CCO"
+          },
+          "encoding": "ECFP"
+        }
+      ]
+    },
+    "continuous": {
+      "parameters": []
+    }
+  },
+  "objective": {
+    "type": "SingleTargetObjective",
+    "target": {
+      "type": "NumericalTarget",
+      "name": "solubility",
+      "transformation": {
+        "type": "BellTransformation",
+        "center": 1.0,
+        "sigma": 0.2
+      },
+      "minimize": false
+    }
+  },
+  "recommender": {
+    "type": "RandomRecommender"
+  },
+  "measurements_exp": null,
+  "cached_recommendation": null,
+  "version": "0.15.0"
+}

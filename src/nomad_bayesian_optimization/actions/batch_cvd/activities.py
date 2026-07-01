@@ -1,11 +1,11 @@
-from nomad_bayesian_optimization.schema_packages.cvd import CVD
-from temporalio import activity
-from nomad.processing.data import Upload
 from nomad.datamodel import ServerContext
+from nomad.processing.data import Upload
+from temporalio import activity
 
 from nomad_bayesian_optimization.actions.batch_cvd.models import (
     BatchCVDInput,
 )
+from nomad_bayesian_optimization.schema_packages.cvd import CVD
 
 
 def get_randomized_parameters(substrate: str) -> dict:
