@@ -87,7 +87,10 @@ class SubstanceParameter(DiscreteParameter):
 
 
 class Bounds(MSection):
-    lower = Quantity(type=float)
+    lower = Quantity(
+        type=float,
+        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
+    )
     upper = Quantity(type=float)
 
 
@@ -97,7 +100,7 @@ class Target(MSection):
     type = Quantity(type=MEnum('NumericalTarget'))
     name = Quantity(type=str)
     mode = Quantity(type=MEnum('MATCH'))
-    transformation = Quantity(type=MEnum("BellTransformation"))
+    transformation = Quantity(type=MEnum('BellTransformation'))
     bounds = SubSection(section_def=Bounds)
 
 

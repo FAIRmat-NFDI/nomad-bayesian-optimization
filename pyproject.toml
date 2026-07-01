@@ -28,7 +28,6 @@ license = { file = "LICENSE" }
 dependencies = [
     "nomad-lab>=1.3.0",
     "structlog",
-    "baybe>=0.11.2"
 ]
 
 [project.urls]
@@ -36,6 +35,9 @@ Repository = "https://github.com/lauri-codes/nomad-bayesian-optimization"
 
 [project.optional-dependencies]
 dev = ["ruff", "pytest"]
+actions = [
+    "baybe>=0.11.2"
+]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
