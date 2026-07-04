@@ -24,11 +24,16 @@ class BayBEParser(MatchingParser):
         with open(mainfile) as f:
             campaign = json.load(f)
 
+        # The Bayesian optimization action injects a top-level ``status`` key when
+        # it persists a campaign; use it if present (a plain serialized campaign
+        # has no status and falls back to the schema default).
+        status = campaign.get('status')
+
         # Decoding the serialized measurement dataframes requires BayBE (and
         # pandas) to be importable. Import lazily so that the parser entry point
         # can still be loaded in environments without the (heavy) BayBE stack.
         try:
-            schema_dict = campaign_dict_to_schema_dict(campaign)
+            schema_dict = campaign_dict_to_schema_dict(campaign, status=status)
         except ImportError as exc:
             if logger is not None:
                 logger.error(

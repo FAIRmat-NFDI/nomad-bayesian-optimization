@@ -11,6 +11,6 @@ class BayBEParserEntryPoint(ParserEntryPoint):
 baybe = BayBEParserEntryPoint(
     name='BayBE Parser',
     description='Used to parse serialized BayBE campaigns into NOMAD entries.',
-    mainfile_name_re='.*\.json',
+    mainfile_name_re=r'.*\.json',
     mainfile_contents_dict={'__has_key': 'searchspace'},
 )

@@ -91,6 +91,8 @@ ignore = [
     "F403", # 'from module import *' used; unable to detect undefined names
     "PLC0415", # `import` should be at the top-level of a file
     "E501", # line too long
+    "PLR2004", # magic value used in comparison
+    "PLR0913", # too many arguments in function definition
 ]
 
 fixable = ["ALL"]
@@ -123,10 +125,8 @@ where = ["src"]
 
 [project.entry-points.'nomad.plugin']
 "nomad_bayesian_optimization.apps:bayesian_optimization_tasks" = "nomad_bayesian_optimization.apps:bayesian_optimization_tasks"
-"nomad_bayesian_optimization.schema_packages:cvd" = "nomad_bayesian_optimization.schema_packages:cvd"
 "nomad_bayesian_optimization.schema_packages:bayesian_optimization" = "nomad_bayesian_optimization.schema_packages:bayesian_optimization"
 "nomad_bayesian_optimization.parsers:baybe" = "nomad_bayesian_optimization.parsers:baybe"
 "nomad_bayesian_optimization.example_uploads:getting_started" = "nomad_bayesian_optimization.example_uploads:getting_started"
 "nomad_bayesian_optimization.example_uploads:optimization_tasks" = "nomad_bayesian_optimization.example_uploads:optimization_tasks"
 "nomad_bayesian_optimization.actions:bayesian_optimization" = "nomad_bayesian_optimization.actions:bayesian_optimization"
-"nomad_bayesian_optimization.actions:batch_cvd" = "nomad_bayesian_optimization.actions:batch_cvd"

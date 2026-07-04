@@ -4,7 +4,7 @@ conforms to the :class:`BayesianOptimization` NOMAD schema.
 The function :func:`campaign_dict_to_schema_dict` is used both by the BayBE
 parser (:mod:`nomad_bayesian_optimization.parsers.baybeparser`) and by the
 Bayesian optimization action
-(:mod:`nomad_bayesian_optimization.actions.bayesian_optimization.activities`)
+(:mod:`nomad_bayesian_optimization.actions.campaign.activities`)
 so that both produce identical archives.
 
 The input is the plain dictionary obtained from ``json.loads(campaign.to_json())``.
