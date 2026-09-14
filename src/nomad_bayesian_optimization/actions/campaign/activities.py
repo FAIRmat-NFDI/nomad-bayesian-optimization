@@ -25,9 +25,13 @@ from nomad_bayesian_optimization.actions.campaign.models import (
 from nomad_bayesian_optimization.campaign_builder import (
     build_campaign as build_baybe_campaign,
 )
+from nomad_bayesian_optimization.campaign_builder import (
+    seed_campaign,
+)
 from nomad_bayesian_optimization.measurement_reader import (
     check_authorized,
     read_measurement_records,
+    resolve_field_metadata,
 )
 
 
@@ -46,24 +50,53 @@ async def build_campaign(data: BayesianOptimizationInput) -> str:
     """
     upload = Upload.get(data.upload_id)
     check_authorized(upload, data.user_id)
+    logger = activity.logger
 
     campaign_file = _campaign_file(data.campaign_name)
     if upload.upload_files.raw_path_exists(campaign_file):
         with upload.upload_files.raw_file(campaign_file, 'r') as f:
             payload = json.load(f)
-        # The persisted file carries an injected ``status`` key that BayBE does not
-        # expect; drop it before restoring the campaign.
+        # The persisted file carries injected ``status`` and ``step_field_meta``
+        # keys that BayBE does not expect; drop them before restoring the campaign.
         payload.pop('status', None)
+        payload.pop('step_field_meta', None)
         campaign = Campaign.from_json(json.dumps(payload))
-        return campaign.to_json()
+    else:
+        campaign = build_baybe_campaign(data)
 
-    campaign = build_baybe_campaign(data)
+    # Reconcile the campaign with the upload's current measurements on both a
+    # fresh build and a resume, so measurements added after the first build are
+    # always included. ``seed_campaign`` dedups against what is already recorded.
     records = read_measurement_records(
-        upload, data.user_id, data.schema_name, data.variables, data.targets
+        upload,
+        data.user_id,
+        data.schema_name,
+        data.variables,
+        data.targets,
+        logger=logger,
     )
-    if records:
-        campaign.add_measurements(pd.DataFrame(records))
+    seed_campaign(campaign, records, logger=logger)
     return campaign.to_json()
+
+
+@activity.defn
+async def resolve_step_field_meta(data: BayesianOptimizationInput) -> dict:
+    """Resolve type/unit/description for each variable/target from the schema.
+
+    This metadata is injected into the persisted campaign so the parser can
+    generate a step schema whose quantities mirror the measurement-schema fields.
+    Returns an empty mapping when nothing can be resolved (the parser then infers
+    types from the BayBE parameters).
+    """
+    upload = Upload.get(data.upload_id)
+    return resolve_field_metadata(
+        upload,
+        data.user_id,
+        data.schema_name,
+        data.variables,
+        data.targets,
+        logger=activity.logger,
+    )
 
 
 @activity.defn
@@ -99,11 +132,11 @@ async def read_and_add_measurement(data: AddMeasurementInput) -> str:
         spec.variables,
         spec.targets,
         entry_ids=[data.entry_id],
+        logger=activity.logger,
     )
 
     campaign = Campaign.from_json(data.campaign_json)
-    if records:
-        campaign.add_measurements(pd.DataFrame(records))
+    seed_campaign(campaign, records, logger=activity.logger)
     return campaign.to_json()
 
 
@@ -126,4 +159,6 @@ async def persist_campaign(data: PersistInput) -> str:
         content.update(campaign_data)
         if data.status:
             content['status'] = data.status
+        if data.field_meta:
+            content['step_field_meta'] = data.field_meta
     return campaign_file

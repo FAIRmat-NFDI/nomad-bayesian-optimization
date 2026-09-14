@@ -14,6 +14,7 @@ in environments without the (heavy) BayBE stack.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -24,6 +25,71 @@ if TYPE_CHECKING:
         TargetSpec,
         VariableSpec,
     )
+
+_default_logger = logging.getLogger(__name__)
+
+
+def _record_key(record: dict, columns: tuple[str, ...] | None = None) -> tuple:
+    """Build a hashable, order-independent key for a measurement record.
+
+    Floats are rounded so records read back from an archive dedup cleanly against
+    the campaign's stored measurements despite floating-point noise. When
+    ``columns`` is given, the key is restricted to those columns — this is how a
+    seed record (only variable/target values) is compared against BayBE's stored
+    measurements, which carry extra internal columns (``BatchNr``, ``FitNr``).
+    """
+    cols = tuple(sorted(record)) if columns is None else columns
+    return tuple(
+        (
+            col,
+            round(float(record.get(col)), 9)
+            if isinstance(record.get(col), (int, float))
+            else record.get(col),
+        )
+        for col in cols
+    )
+
+
+def seed_campaign(
+    campaign: Campaign, records: list[dict], *, logger: Any = None
+) -> int:
+    """Add measurement ``records`` to ``campaign``, skipping ones already present.
+
+    Used to reconcile the campaign with the upload's measurements on both a fresh
+    build and a resume, without duplicating rows that were already recorded (e.g.
+    by the accept→record cycle). Returns the number of records actually added.
+    """
+    log = logger if logger is not None else _default_logger
+    if not records:
+        return 0
+
+    import pandas as pd
+
+    # Dedup on the record's own columns (variable/target names); BayBE's stored
+    # measurements add internal columns (BatchNr/FitNr) that must be ignored.
+    columns = tuple(sorted({key for record in records for key in record}))
+
+    existing_keys: set[tuple] = set()
+    measurements = getattr(campaign, 'measurements', None)
+    if measurements is not None and not measurements.empty:
+        for _, row in measurements.iterrows():
+            existing_keys.add(_record_key(row.to_dict(), columns))
+
+    new_records: list[dict] = []
+    for record in records:
+        key = _record_key(record, columns)
+        if key in existing_keys:
+            continue
+        existing_keys.add(key)  # also dedup within the incoming records
+        new_records.append(record)
+
+    if new_records:
+        campaign.add_measurements(pd.DataFrame(new_records))
+    log.info(
+        f'Seeded {len(new_records)} new measurement(s); '
+        f'{len(records) - len(new_records)} already present.'
+    )
+    return len(new_records)
 
 
 def _build_parameter(variable: VariableSpec) -> Any:

@@ -17,6 +17,7 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
             persist_campaign,
             read_and_add_measurement,
             recommend_next,
+            resolve_step_field_meta,
         )
         from nomad_bayesian_optimization.actions.campaign.workflows import (
             BayesianOptimizationWorkflow,
@@ -27,6 +28,7 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
             workflow=BayesianOptimizationWorkflow,
             activities=[
                 build_campaign,
+                resolve_step_field_meta,
                 recommend_next,
                 read_and_add_measurement,
                 persist_campaign,

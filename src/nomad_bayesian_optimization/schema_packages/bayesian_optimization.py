@@ -1,7 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
 from nomad.datamodel.data import ArchiveSection, Schema
-from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.metainfo import (
     JSON,
@@ -9,7 +8,6 @@ from nomad.metainfo import (
     MSection,
     Quantity,
     SchemaPackage,
-    Section,
     SubSection,
 )
 
@@ -21,15 +19,12 @@ class Parameter(ArchiveSection):
 
     name = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
     value_reference = Quantity(
         type=Quantity,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.ReferenceEditQuantity),
     )
     definition = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
 
 
@@ -38,11 +33,9 @@ class ContinuousParameter(Parameter):
 
     lower_bound = Quantity(
         type=float,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
     upper_bound = Quantity(
         type=float,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
 
 
@@ -58,7 +51,6 @@ class NumericalDiscreteParameter(DiscreteParameter):
     values = Quantity(
         type=float,
         shape=['*'],
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
     tolerance = Quantity(
         type=float,
@@ -75,7 +67,6 @@ class CategoricalParameter(DiscreteParameter):
     values = Quantity(
         type=str,
         shape=['*'],
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
     encoding = Quantity(
         type=str,
@@ -88,11 +79,9 @@ class BoSubstance(ArchiveSection):
 
     name = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
     smiles = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
 
 
@@ -117,7 +106,6 @@ class Bounds(MSection):
 
     lower = Quantity(
         type=float,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
     upper = Quantity(type=float)
 
@@ -205,42 +193,32 @@ class Recommender(MSection):
 
 
 class Step(MSection):
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-    entry = Quantity(
-        type=Schema,
-        a_eln=dict(component='ReferenceEditQuantity'),
-    )
-    values_used = Quantity(
-        type=JSON, description='The values used in the optimization procedure.'
-    )
-    values_recommended = Quantity(
-        type=JSON,
+    """Represents a single step in the Bayesian optimization procedure. Is used to
+    record the actually used parameter values and observed objective values during
+    optimization (not necessarily the ones that the optimization procedure originally
+    recommended).
+
+    Since every optimization run differs in its design, the concrete per-parameter and
+    per-target values are stored on a generated subclass of this section
+    (``CampaignStep``) whose quantities mirror the campaign's variables and targets.
+    That generated schema is created on the fly and stored under
+    ``EntryArchive.definitions``, so the values can be recorded with proper types,
+    units and descriptions. This base class only holds fields common to every step.
+    """
+
+    recommended = Quantity(
+        type=bool,
         description="""
-        The values recommended by the optimization procedure. Note that it is not always
-        possible to use these values in real experiments, and the final values that were
-        used should be recorded in `values_used`.
+        Whether this step is a pending recommendation suggested by the optimizer
+        (True) that has not yet been measured, as opposed to a recorded measurement
+        (False).
         """,
     )
-
-    def normalize(self, archive, logger) -> None:
-        # TODO: Extract value_final from the entry reference using the search
-        # space information
-        if not self.values_used and self.entry:
-            pass
 
 
 class BayesianOptimization(PlotSection, Schema):
     """Represents a single Bayesian optimization task."""
 
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
     status = Quantity(
         type=MEnum('Initializing', 'Suggesting', 'Acquiring', 'Finished', 'Error'),
         default='Initializing',
@@ -263,15 +241,29 @@ class BayesianOptimization(PlotSection, Schema):
         if not self.steps:
             return
 
-        # Gather the values from each step into a single dataframe.
+        # Gather the values from each step into a single dataframe. The step values
+        # live on a generated ``CampaignStep`` subclass whose quantities each carry
+        # the original BayBE column name in their ``more`` dict.
         steps_list = []
         for step in self.steps:
-            value = step.values_used or step.values_recommended
-            if value:
-                steps_list.append(value)
+            row = {}
+            for name, quantity in step.m_def.all_quantities.items():
+                column = quantity.more.get('baybe_name') if quantity.more else None
+                if not column:
+                    continue
+                value = getattr(step, name, None)
+                if value is None:
+                    continue
+                # Quantities carrying a unit come back as pint quantities.
+                magnitude = getattr(value, 'magnitude', None)
+                if magnitude is not None:
+                    value = float(magnitude)
+                row[column] = value
+            if row:
+                steps_list.append(row)
         if not steps_list:
             return
-        steps_df = pd.DataFrame.from_dict(steps_list)
+        steps_df = pd.DataFrame(steps_list)
 
         # Determine the x-axis for the progress plot: use the BayBE batch number
         # if it is available, otherwise fall back to a running step index.

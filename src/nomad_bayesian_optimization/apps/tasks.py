@@ -5,7 +5,10 @@ from nomad.config.models.ui import (
     Menu,
     MenuItemHistogram,
     MenuItemTerms,
-    SearchQuantities,
+    Rows,
+    RowActions,
+    RowActionURL,
+    RowActionNorth
 )
 
 schema_name = 'nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization'  # noqa: E501
@@ -13,7 +16,6 @@ app = App(
     label='Bayesian Optimizations Tasks',
     path='bayesian-optimization-tasks',
     category='Bayesian Optimization',
-    search_quantities=SearchQuantities(include=[f'*#{schema_name}']),
     columns=[
         Column(search_quantity='entry_create_time', selected=True),
         Column(search_quantity=f'data.status#{schema_name}', selected=True),
@@ -100,6 +102,14 @@ app = App(
                 ],
             ),
         ]
+    ),
+    rows=Rows(
+        actions=RowActions(
+            items=[
+                RowActionURL(icon="launch", path="data.url", description="Open a link."),
+                RowActionNorth(icon="launch", filepath="data.filepath", tool_name='jupyter', description="Open file in Jupyter")
+            ]
+        )
     ),
     filters_locked={'section_defs.definition_qualified_name': [schema_name]},
 )

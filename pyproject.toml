@@ -127,6 +127,4 @@ where = ["src"]
 "nomad_bayesian_optimization.apps:bayesian_optimization_tasks" = "nomad_bayesian_optimization.apps:bayesian_optimization_tasks"
 "nomad_bayesian_optimization.schema_packages:bayesian_optimization" = "nomad_bayesian_optimization.schema_packages:bayesian_optimization"
 "nomad_bayesian_optimization.parsers:baybe" = "nomad_bayesian_optimization.parsers:baybe"
-"nomad_bayesian_optimization.example_uploads:getting_started" = "nomad_bayesian_optimization.example_uploads:getting_started"
-"nomad_bayesian_optimization.example_uploads:optimization_tasks" = "nomad_bayesian_optimization.example_uploads:optimization_tasks"
 "nomad_bayesian_optimization.actions:bayesian_optimization" = "nomad_bayesian_optimization.actions:bayesian_optimization"

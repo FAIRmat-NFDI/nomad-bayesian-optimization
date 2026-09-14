@@ -11,6 +11,7 @@ with workflow.unsafe.imports_passed_through():
         persist_campaign,
         read_and_add_measurement,
         recommend_next,
+        resolve_step_field_meta,
     )
     from nomad_bayesian_optimization.actions.campaign.models import (
         AddMeasurementInput,
@@ -64,6 +65,16 @@ class BayesianOptimizationWorkflow:
         retry_policy = RetryPolicy(maximum_attempts=3)
         action_instance_id = workflow.info().workflow_id
 
+        # Resolve the step-field metadata (type/unit/description) from the
+        # measurement schema once; it is injected into every persisted campaign so
+        # the parser can generate a typed step schema.
+        field_meta = await workflow.execute_activity(
+            resolve_step_field_meta,
+            data,
+            start_to_close_timeout=ACTIVITY_TIMEOUT,
+            retry_policy=retry_policy,
+        )
+
         def persist(campaign_json: str, status: str):
             return workflow.execute_activity(
                 persist_campaign,
@@ -72,6 +83,7 @@ class BayesianOptimizationWorkflow:
                     upload_id=data.upload_id,
                     campaign_name=data.campaign_name,
                     status=status,
+                    field_meta=field_meta,
                 ),
                 start_to_close_timeout=ACTIVITY_TIMEOUT,
                 retry_policy=retry_policy,

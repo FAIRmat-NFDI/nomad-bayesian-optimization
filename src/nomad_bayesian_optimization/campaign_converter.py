@@ -47,6 +47,9 @@ def _dataframe_records(serialized_df: Any) -> list[dict]:
     empty dataframes. The round-trip through ``DataFrame.to_json`` converts
     numpy scalars / NaNs into plain JSON types so the result can be stored in a
     NOMAD ``JSON`` quantity.
+
+    Importing BayBE may raise ``ImportError``; callers handle that (the parser
+    logs and bails so the entry point still loads without the BayBE stack).
     """
     if serialized_df is None:
         return []
@@ -57,6 +60,16 @@ def _dataframe_records(serialized_df: Any) -> list[dict]:
     if df is None or df.empty:
         return []
     return json.loads(df.to_json(orient='records'))
+
+
+def measured_records(campaign: dict) -> list[dict]:
+    """Return one record per recorded measurement of the campaign."""
+    return _dataframe_records(campaign.get('measurements_exp'))
+
+
+def recommended_records(campaign: dict) -> list[dict]:
+    """Return one record per pending (recommended but not measured) suggestion."""
+    return _dataframe_records(campaign.get('cached_recommendation'))
 
 
 def _extract_bounds(transformation: dict | None) -> dict | None:
@@ -226,23 +239,16 @@ def campaign_dict_to_schema_dict(campaign: dict, status: str | None = None) -> d
     for param in continuous.get('parameters', []):
         parameters.append(_convert_continuous_parameter(param))
 
-    # Build one step per recorded measurement, plus a final step for a pending
-    # (recommended but not yet measured) recommendation. BayBE serializes these
-    # dataframes under keys without the leading underscore of the attribute name.
-    steps = [
-        {'m_def': _m('Step'), 'values_used': record}
-        for record in _dataframe_records(campaign.get('measurements_exp'))
-    ]
-    for record in _dataframe_records(campaign.get('cached_recommendation')):
-        steps.append({'m_def': _m('Step'), 'values_recommended': record})
-
+    # Steps are not built here: each step is stored with a generated, typed schema
+    # (see :mod:`nomad_bayesian_optimization.step_schema`), which the parser
+    # attaches to ``archive.definitions`` and instantiates from the decoded
+    # measurement/recommendation records (:func:`measured_records`,
+    # :func:`recommended_records`).
     result: dict = {
         'm_def': _m('BayesianOptimization'),
         'parameters': parameters,
         'objective': _convert_objective(campaign.get('objective')),
         'recommender': _convert_recommender(campaign.get('recommender')),
-        'steps': steps,
-        'n_steps': len(steps),
     }
     if status is not None:
         result['status'] = status

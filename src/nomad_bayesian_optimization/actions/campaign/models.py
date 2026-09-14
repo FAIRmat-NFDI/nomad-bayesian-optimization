@@ -167,3 +167,9 @@ class PersistInput(BaseModel):
     upload_id: str
     campaign_name: str = 'campaign'
     status: str | None = None
+    field_meta: dict[str, Any] | None = Field(
+        None,
+        description='Type/unit/description metadata for the step quantities, '
+        'resolved from the measurement schema and injected into the persisted '
+        'campaign so the parser can generate a typed step schema.',
+    )

@@ -17,6 +17,8 @@ import pandas as pd
 import pytest
 from nomad.client import normalize_all, parse
 
+from nomad_bayesian_optimization.naming import sanitize_quantity_name
+
 # BayBE is required to build the serialized campaign fixtures.
 pytest.importorskip('baybe')
 
@@ -200,14 +202,28 @@ def test_parse_campaign(builder_name, tmp_path):
     assert [t.name for t in data.objective.targets] == expected['target_names']
     assert [bool(t.minimize) for t in data.objective.targets] == expected['minimize']
 
-    # Steps / measurements
+    # The generated per-campaign step schema is stored in the archive
+    # definitions as a subclass of ``Step`` with one quantity per parameter/target.
+    assert archive.definitions is not None
+    section_defs = archive.definitions.section_definitions
+    assert len(section_defs) == 1
+    step_section = section_defs[0]
+    assert step_section.name == 'CampaignStep'
+    assert any(base.name == 'Step' for base in step_section.base_sections)
+    quantity_names = {q.name for q in step_section.quantities}
+    expected_quantities = set(expected['param_names']) | {
+        sanitize_quantity_name(name) for name in expected['target_names']
+    }
+    assert quantity_names == expected_quantities
+
+    # Steps / measurements are stored as typed instances of the generated schema.
     assert data.n_steps == expected['n_steps']
     assert len(data.steps) == expected['n_steps']
-    target_name = expected['target_names'][0]
+    target_quantity = sanitize_quantity_name(expected['target_names'][0])
     measured = [
-        s.values_used[target_name]
-        for s in data.steps
-        if s.values_used and target_name in s.values_used
+        getattr(step, target_quantity)
+        for step in data.steps
+        if getattr(step, target_quantity, None) is not None
     ]
     assert expected['measured_target_value'] in measured
 
