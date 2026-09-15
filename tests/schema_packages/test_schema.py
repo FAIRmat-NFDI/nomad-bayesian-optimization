@@ -1,3 +1,4 @@
+import pytest
 from nomad.client import normalize_all
 from nomad.datamodel import EntryArchive, EntryMetadata
 
@@ -5,6 +6,7 @@ from nomad_bayesian_optimization.schema_packages.bayesian_optimization import (
     BayesianOptimization,
     Objective,
     Target,
+    _best_so_far,
 )
 from nomad_bayesian_optimization.step_schema import (
     attach_step_package,
@@ -13,7 +15,7 @@ from nomad_bayesian_optimization.step_schema import (
 )
 
 
-def _build_archive():
+def _build_archive(target_unit: str | None = None):
     """Build a ``BayesianOptimization`` archive with a generated, typed step schema.
 
     Mirrors what the parser does, but without BayBE: it derives the step fields
@@ -39,7 +41,11 @@ def _build_archive():
             'unit': 'pascal',
             'description': 'Chamber pressure',
         },
-        'yield': {'type': 'float', 'unit': None, 'description': 'Reaction yield'},
+        'yield': {
+            'type': 'float',
+            'unit': target_unit,
+            'description': 'Reaction yield',
+        },
     }
     field_specs = derive_step_fields(campaign, field_meta)
 
@@ -92,5 +98,77 @@ def test_schema():
     # Step values are stored on the typed instances.
     assert [float(getattr(s, 'yield')) for s in data.steps] == [60.0, 75.0, 82.0]
 
-    # normalize() creates one progress figure per target plus a search-space table.
-    assert len(data.figures) == len(data.objective.targets) + 1
+    # normalize() creates one progress figure per target.
+    assert len(data.figures) == len(data.objective.targets)
+    figure = data.figures[0]
+    assert figure.label == 'yield'
+    measured, best = figure.figure['data']
+    assert list(measured['x']) == [1, 2, 3]
+    assert list(measured['y']) == [60.0, 75.0, 82.0]
+    assert list(best['x']) == [1, 2, 3]
+    assert list(best['y']) == [60.0, 75.0, 82.0]
+    assert figure.figure['layout']['xaxis']['title']['text'] == 'Step'
+    assert figure.figure['layout']['yaxis']['title']['text'] == 'yield'
+
+
+def test_progress_figure_skips_recommended_steps():
+    """Pending recommendations have no measured target value and are not plotted."""
+    archive, field_specs = _build_archive(target_unit='kelvin')
+    step_def = archive.definitions.section_definitions[0]
+    archive.data.steps.append(
+        make_step_instance(
+            step_def,
+            {'pressure': 4.0, 'substrate': 'Si'},
+            field_specs,
+            recommended=True,
+        )
+    )
+    normalize_all(archive)
+
+    measured, best = archive.data.figures[0].figure['data']
+    assert list(measured['x']) == [1, 2, 3]
+    assert list(best['x']) == [1, 2, 3]
+    layout = archive.data.figures[0].figure['layout']
+    assert layout['yaxis']['title']['text'] == 'yield (K)'
+
+
+@pytest.mark.parametrize(
+    'target, values, expected',
+    [
+        pytest.param(
+            Target(minimize=False), [70.0, 60.0, 80.0], [70.0, 70.0, 80.0], id='max'
+        ),
+        pytest.param(
+            Target(minimize=True), [12.0, 8.0, 10.0], [12.0, 8.0, 8.0], id='min'
+        ),
+        pytest.param(
+            Target(
+                minimize=False,
+                transformation_parameters={
+                    'type': 'BellTransformation',
+                    'center': 80.0,
+                    'sigma': 5.0,
+                },
+            ),
+            [70.0, 95.0, 78.0],
+            [70.0, 70.0, 78.0],
+            id='bell',
+        ),
+        pytest.param(
+            Target(
+                minimize=False,
+                transformation_parameters={
+                    'type': 'TriangularTransformation',
+                    'cutoffs': {'lower': 1.5, 'upper': 2.5},
+                    'peak': 2.0,
+                },
+            ),
+            [1.6, 2.2, 1.9],
+            [1.6, 2.2, 1.9],
+            id='triangular',
+        ),
+    ],
+)
+def test_best_so_far(target, values, expected):
+    """The running best depends on the target's direction or match value."""
+    assert _best_so_far(values, target) == expected

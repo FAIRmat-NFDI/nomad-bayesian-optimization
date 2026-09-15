@@ -1,4 +1,3 @@
-import pandas as pd
 import plotly.graph_objects as go
 from nomad.datamodel.data import ArchiveSection, Schema
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
@@ -238,91 +237,94 @@ class BayesianOptimization(PlotSection, Schema):
 
         self.n_steps = len(self.steps or [])
 
-        if not self.steps:
-            return
-
-        # Gather the values from each step into a single dataframe. The step values
-        # live on a generated ``CampaignStep`` subclass whose quantities each carry
-        # the original BayBE column name in their ``more`` dict.
-        steps_list = []
-        for step in self.steps:
-            row = {}
-            for name, quantity in step.m_def.all_quantities.items():
-                column = quantity.more.get('baybe_name') if quantity.more else None
-                if not column:
-                    continue
-                value = getattr(step, name, None)
-                if value is None:
-                    continue
-                # Quantities carrying a unit come back as pint quantities.
-                magnitude = getattr(value, 'magnitude', None)
-                if magnitude is not None:
-                    value = float(magnitude)
-                row[column] = value
-            if row:
-                steps_list.append(row)
-        if not steps_list:
-            return
-        steps_df = pd.DataFrame(steps_list)
-
-        # Determine the x-axis for the progress plot: use the BayBE batch number
-        # if it is available, otherwise fall back to a running step index.
-        if 'BatchNr' in steps_df.columns:
-            x_values = steps_df['BatchNr']
-        else:
-            x_values = list(range(1, len(steps_df) + 1))
-
-        # Create a separate progress plot for each target of the objective.
-        figures = []
+        # Create a separate progress plot for each target of the objective. The
+        # individual steps are not plotted: they are shown as a table directly from
+        # the ``steps`` subsection.
         targets = (self.objective.targets if self.objective else None) or []
-        for target in targets:
-            target_name = target.name
-            if not target_name or target_name not in steps_df.columns:
-                continue
-            figure = go.Figure()
-            figure.add_trace(
-                go.Scatter(
-                    x=x_values,
-                    y=steps_df[target_name],
-                    mode='lines+markers',
-                )
-            )
-            figure.update_layout(
-                template='plotly_white',
-                title='Progress',
-                xaxis_title='Iteration',
-                yaxis_title=target_name,
-            )
-            figures.append(
-                PlotlyFigure(label=target_name, figure=figure.to_plotly_json())
-            )
+        self.figures = [
+            figure for target in targets if (figure := self._progress_figure(target))
+        ]
 
-        # Create a table of the traversed search space from last to first step.
-        # Recommended, but not yet tried values are added to the table as well.
-        table_df = steps_df[::-1]
+    def _find_step_quantity(self, name: str):
+        """Return the step quantity that stores the given BayBE variable/target.
+
+        The step values live on a generated ``CampaignStep`` subclass whose
+        quantities each carry the original BayBE column name in their ``more`` dict.
+        """
+        if not self.steps:
+            return None
+        for quantity in self.steps[0].m_def.all_quantities.values():
+            if quantity.more and quantity.more.get('baybe_name') == name:
+                return quantity
+        return None
+
+    def _progress_figure(self, target: Target) -> PlotlyFigure | None:
+        """Create a plot of the measured target values against the step number."""
+        quantity = self._find_step_quantity(target.name)
+        if quantity is None:
+            return None
+
+        # Recommended steps have not been measured yet and are left out. The step
+        # number is the position in ``steps``, matching the order of the steps table.
+        steps, values = [], []
+        for number, step in enumerate(self.steps, start=1):
+            value = getattr(step, quantity.name, None)
+            if step.recommended or value is None:
+                continue
+            # Quantities carrying a unit come back as pint quantities.
+            steps.append(number)
+            values.append(float(getattr(value, 'magnitude', value)))
+        if not values:
+            return None
+
         figure = go.Figure(
             data=[
-                go.Table(
-                    header=dict(
-                        values=list(table_df.columns),
-                        align='left',
-                    ),
-                    cells=dict(
-                        values=table_df.transpose().values.tolist(),
-                        align='left',
-                    ),
-                )
+                go.Scatter(x=steps, y=values, mode='markers', name='Measured'),
+                go.Scatter(
+                    x=steps,
+                    y=_best_so_far(values, target),
+                    mode='lines',
+                    line_shape='hv',
+                    name='Best so far',
+                ),
             ]
         )
+        y_title = target.name
+        if quantity.unit is not None:
+            y_title = f'{target.name} ({quantity.unit:~P})'
         figure.update_layout(
             template='plotly_white',
-            margin=dict(l=0, r=0, t=0, b=0),
-            width=800,
+            xaxis_title='Step',
+            xaxis_tickformat='d',
+            yaxis_title=y_title,
+            legend=dict(orientation='h', yanchor='bottom', y=1.02, x=0),
         )
-        figures.append(
-            PlotlyFigure(label='Search space', figure=figure.to_plotly_json())
-        )
-        self.figures = figures
+        return PlotlyFigure(label=target.name, figure=figure.to_plotly_json())
+
+
+def _best_so_far(values: list[float], target: Target) -> list[float]:
+    """Return the running best of the given target values.
+
+    For match targets (with a ``BellTransformation`` or ``TriangularTransformation``)
+    the best value is the one closest to the match value. Otherwise the best value
+    is the smallest or largest one, depending on whether the target is minimized.
+    Other transformations (e.g. chained ones) are not interpreted, so the result is
+    a best-effort estimate for them.
+    """
+    parameters = target.transformation_parameters or {}
+    match_value = parameters.get('center', parameters.get('peak'))
+
+    best_values = []
+    for value in values:
+        best = best_values[-1] if best_values else value
+        if match_value is not None:
+            is_better = abs(value - match_value) < abs(best - match_value)
+        elif target.minimize:
+            is_better = value < best
+        else:
+            is_better = value > best
+        best_values.append(value if is_better else best)
+    return best_values
 
 
 m_package.__init_metainfo__()

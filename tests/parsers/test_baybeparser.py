@@ -227,8 +227,8 @@ def test_parse_campaign(builder_name, tmp_path):
     ]
     assert expected['measured_target_value'] in measured
 
-    # A progress figure is produced for each target, plus a search-space table.
-    assert len(data.figures) == len(expected['target_names']) + 1
+    # A progress figure is produced for each target.
+    assert [f.label for f in data.figures] == expected['target_names']
 
     if 'weights' in expected:
         assert [t.weight for t in data.objective.targets] == expected['weights']
