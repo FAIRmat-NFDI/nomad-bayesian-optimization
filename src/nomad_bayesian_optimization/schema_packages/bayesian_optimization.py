@@ -319,12 +319,15 @@ class BayesianOptimization(PlotSection, Schema):
 
         figure = go.Figure(
             data=[
-                go.Scatter(x=steps, y=values, mode='markers', name='Measured'),
+                go.Scatter(
+                    x=steps, y=values, mode='markers', name='Recorded values'
+                ),
                 go.Scatter(
                     x=steps,
                     y=_best_so_far(values, target),
                     mode='lines',
                     line_shape='hv',
+                    line_dash='dash',
                     name='Best so far',
                 ),
             ]
@@ -337,6 +340,7 @@ class BayesianOptimization(PlotSection, Schema):
             xaxis_title='Step',
             xaxis_tickformat='d',
             yaxis_title=y_title,
+            showlegend=True,
             legend=dict(orientation='h', yanchor='bottom', y=1.02, x=0),
         )
         return PlotlyFigure(label=target.name, figure=figure.to_plotly_json())
