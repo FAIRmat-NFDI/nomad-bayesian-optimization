@@ -1,8 +1,5 @@
-import pandas as pd
 import plotly.graph_objects as go
-from baybe.serialization.utils import deserialize_dataframe
 from nomad.datamodel.data import ArchiveSection, Schema
-from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 from nomad.datamodel.metainfo.plot import PlotlyFigure, PlotSection
 from nomad.metainfo import (
     JSON,
@@ -10,7 +7,6 @@ from nomad.metainfo import (
     MSection,
     Quantity,
     SchemaPackage,
-    Section,
     SubSection,
 )
 
@@ -18,165 +14,263 @@ m_package = SchemaPackage()
 
 
 class Parameter(ArchiveSection):
-    """Parameter."""
+    """A single optimization parameter (one dimension of the search space)."""
 
     name = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
-    )
-    value_reference = Quantity(
-        type=Quantity,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.ReferenceEditQuantity),
-    )
-    definition = Quantity(
-        type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
 
 
 class ContinuousParameter(Parameter):
-    """Continuous parameter."""
+    """A continuous numerical parameter defined by a closed interval."""
 
     lower_bound = Quantity(
         type=float,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
     upper_bound = Quantity(
         type=float,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
     )
 
 
 class DiscreteParameter(Parameter):
-    """Discrete parameter."""
+    """Base class for parameters with a finite set of allowed values."""
 
     pass
 
 
 class NumericalDiscreteParameter(DiscreteParameter):
+    """A numerical parameter with a finite set of allowed values."""
+
     values = Quantity(
         type=float,
         shape=['*'],
-        a_eln=ELNAnnotation(component=ELNComponentEnum.NumberEditQuantity),
-    )  # TODO populate values from m_def
+    )
+    tolerance = Quantity(
+        type=float,
+        description="""
+        Maximum allowed deviation of a measured value from a discrete value for
+        it to still be recognized as that value.
+        """,
+    )
 
 
 class CategoricalParameter(DiscreteParameter):
+    """A parameter with a finite set of categorical (labelled) values."""
+
     values = Quantity(
         type=str,
         shape=['*'],
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
-    )  # TODO populate values from m_def
+    )
+    encoding = Quantity(
+        type=str,
+        description='Encoding used to represent the categories numerically.',
+    )
 
 
 class BoSubstance(ArchiveSection):
+    """A chemical substance identified by a name and a SMILES string."""
+
     name = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
     smiles = Quantity(
         type=str,
-        a_eln=ELNAnnotation(component=ELNComponentEnum.StringEditQuantity),
     )
 
 
 class SubstanceParameter(DiscreteParameter):
+    """A parameter whose values are chemical substances (name + SMILES)."""
+
     values = SubSection(
         section_def=BoSubstance,
         repeats=True,
     )
+    encoding = Quantity(
+        type=str,
+        description="""
+        Encoding used to represent the substances numerically (e.g. MORDRED,
+        RDKIT, MORGAN_FP).
+        """,
+    )
 
 
 class Bounds(MSection):
-    lower = Quantity(type=float)
+    """A numerical interval."""
+
+    lower = Quantity(
+        type=float,
+    )
     upper = Quantity(type=float)
 
 
 class Target(MSection):
-    """The target specification for the optimization."""
+    """A single optimization target."""
 
-    type = Quantity(type=MEnum('NumericalTarget'))
+    type = Quantity(
+        type=str,
+        description='The BayBE target class name (e.g. NumericalTarget).',
+    )
     name = Quantity(type=str)
-    mode = Quantity(type=MEnum('MATCH'))
-    transformation = Quantity(type=MEnum('BELL'))
+    mode = Quantity(
+        type=MEnum('MAX', 'MIN', 'MATCH', 'MISMATCH'),
+        description="""
+        Goal for the measured (untransformed) target values: maximize, minimize,
+        match the match value or stay away from it. Not set when the goal cannot be
+        determined from the target transformation.
+        """,
+    )
+    match_value = Quantity(
+        type=float,
+        description='The value to be matched (MATCH) or avoided (MISMATCH).',
+    )
+    match_mode = Quantity(
+        type=MEnum('=', '>=', '<='),
+        description="""
+        Matching mode: with '>=' ('<=') all values above (below) the match value are
+        considered a match.
+        """,
+    )
+    minimize = Quantity(
+        type=bool,
+        description="""
+        Whether the transformed target value is minimized (True) or maximized
+        (False). For transformed targets this differs from the goal for the measured
+        values, see ``mode``.
+        """,
+    )
+    transformation = Quantity(
+        type=str,
+        description="""
+        Name of the transformation applied to the raw target values before
+        optimization (e.g. BellTransformation, AffineTransformation).
+        """,
+    )
+    transformation_parameters = Quantity(
+        type=JSON,
+        description='Full serialized transformation, including its parameters.',
+    )
+    constructor_info = Quantity(
+        type=JSON,
+        description="""
+        The BayBE constructor used to create the target (e.g. match_bell) and its
+        arguments.
+        """,
+    )
+    weight = Quantity(
+        type=float,
+        description="""
+        Relative weight of this target within a multi-target (desirability)
+        objective.
+        """,
+    )
     bounds = SubSection(section_def=Bounds)
 
 
 class Objective(MSection):
-    type = Quantity(type=MEnum('SingleTargetObjective'))
-    target = SubSection(section_def=Target)
+    """The optimization objective, possibly combining several targets."""
+
+    type = Quantity(
+        type=MEnum(
+            'SingleTargetObjective',
+            'DesirabilityObjective',
+            'ParetoObjective',
+        )
+    )
+    scalarizer = Quantity(
+        type=str,
+        description="""
+        Scalarizer used to combine multiple targets in a desirability objective
+        (e.g. GEOM_MEAN, MEAN).
+        """,
+    )
+    targets = SubSection(section_def=Target, repeats=True)
 
 
 class KernelFactory(MSection):
-    type = Quantity(type=MEnum('DefaultKernelFactory'))
+    type = Quantity(type=str)
 
 
 class SurrogateModel(MSection):
-    type = Quantity(type=MEnum('GaussianProcessSurrogate'))
-    kernel_factor = SubSection(section_def=KernelFactory)
+    type = Quantity(type=str)
+    kernel_factory = SubSection(section_def=KernelFactory)
 
 
 class AcquisitionFunction(MSection):
-    type = Quantity(type=MEnum('qExpectedImprovement'))
+    type = Quantity(type=str)
+    abbreviation = Quantity(
+        type=str,
+        description='Short name of the acquisition function (e.g. qLogEI).',
+    )
 
 
 class Recommender(MSection):
-    type = Quantity(
-        type=MEnum(
-            'TwoPhaseMetaRecommender',
-            'NaiveHybridSpaceRecommender',
-            'RandomRecommender',
-        )
-    )
+    """The recommender (strategy) used to suggest new experiments."""
+
+    type = Quantity(type=str)
     surrogate_model = SubSection(section_def=SurrogateModel)
     initial_recommender = SubSection(section_def='Recommender')
     recommender = SubSection(section_def='Recommender')
+    switch_after = Quantity(
+        type=int,
+        description="""
+        Number of batches after which a meta recommender switches from the initial
+        recommender to the main recommender.
+        """,
+    )
     acquisition_function = SubSection(section_def=AcquisitionFunction)
-    hybrid_sampler = Quantity(type=MEnum('Farthest'))
+    hybrid_sampler = Quantity(type=str)
     sampling_percentage = Quantity(type=float)
+    config = Quantity(
+        type=JSON,
+        description='Full serialized recommender configuration.',
+    )
 
 
 class Step(MSection):
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
-    entry = Quantity(
-        type=Schema,
-        a_eln=dict(component='ReferenceEditQuantity'),
-    )
-    values_used = Quantity(
-        type=JSON, desription='The values used in the optimization procedure.'
-    )
-    values_recommended = Quantity(
-        type=JSON,
-        desription="""
-        The values recommended by the optimization procedure. Note that it is not always
-        possible to use these values in real experiments, and the final values that were
-        used should be recorded in `values_used`.
+    """Represents a single step in the Bayesian optimization procedure. Is used to
+    record the actually used parameter values and observed objective values during
+    optimization (not necessarily the ones that the optimization procedure originally
+    recommended).
+
+    Since every optimization run differs in its design, the concrete per-parameter and
+    per-target values are stored on a generated subclass of this section
+    (``CampaignStep``) whose quantities mirror the campaign's variables and targets.
+    That generated schema is created on the fly and stored under
+    ``EntryArchive.definitions``, so the values can be recorded with proper types,
+    units and descriptions. This base class only holds fields common to every step.
+    """
+
+    recommended = Quantity(
+        type=bool,
+        description="""
+        Whether this step is a pending recommendation suggested by the optimizer
+        (True) that has not yet been measured, as opposed to a recorded measurement
+        (False).
         """,
     )
-
-    def normalize(self, archive, logger) -> None:
-        # TODO: Extract value_final from the entry reference using the search
-        # space information
-        if not self.values_used and self.entry:
-            pass
 
 
 class BayesianOptimization(PlotSection, Schema):
     """Represents a single Bayesian optimization task."""
 
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            lane_width='600px',
-        )
-    )
     status = Quantity(
         type=MEnum('Initializing', 'Suggesting', 'Acquiring', 'Finished', 'Error'),
         default='Initializing',
         description='Optimization status.',
+    )
+    search_space_type = Quantity(
+        type=MEnum('Discrete', 'Continuous', 'Hybrid'),
+        description="""
+        Type of the search space: purely discrete, purely continuous or a hybrid of
+        both.
+        """,
+    )
+    n_candidates = Quantity(
+        type=int,
+        description="""
+        Number of candidates in the discrete part of the search space. Not set for
+        purely continuous search spaces.
+        """,
     )
     parameters = SubSection(section_def=Parameter, repeats=True)
     objective = SubSection(section_def=Objective)
@@ -186,143 +280,133 @@ class BayesianOptimization(PlotSection, Schema):
         type=int,
         description='Number of steps in optimization.',
     )
-    baybe_campaign = Quantity(
-        type=JSON,
-        description="""
-        Contains the full JSON serialized BayBE campaign that represents this
-        Bayesian Optimization.
-        """,
+    n_measurements = Quantity(
+        type=int,
+        description='Number of steps with recorded measurements.',
     )
-
-    def from_baybe(campaign):
-        """Instantiate a BayesianOptimization from a BayBE campaign."""
-        dictionary = campaign.to_dict()
-        result = BayesianOptimization()
-        result.baybe_campaign = dictionary.copy()
-
-        searchspace: dict = dictionary.pop('searchspace', {})
-        discrete: dict = searchspace.get('discrete', {})
-        continuous: dict = searchspace.get('continuous', {})
-        ps = discrete.get('parameters', []) + continuous.get('parameters', [])
-        parameters = []
-        for parameter in ps:
-            if parameter['type'] == 'CategoricalParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.CategoricalParameter'
-                        ),
-                        'name': parameter['name'],
-                        'values': parameter['values'],
-                    }
-                )
-            elif parameter['type'] == 'NumericalDiscreteParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.NumericalDiscreteParameter'
-                        ),
-                        'name': parameter['name'],
-                        'values': parameter['values'],
-                    }
-                )
-            elif parameter['type'] == 'NumericalContinuousParameter':
-                parameters.append(
-                    {
-                        'm_def': (
-                            'nomad_bayesian_optimization.schema_packages.'
-                            'bayesian_optimization.ContinuousParameter'
-                        ),
-                        'name': parameter['name'],
-                        'lower_bound': parameter['bounds']['lower'],
-                        'upper_bound': parameter['bounds']['upper'],
-                    }
-                )
-            elif parameter['type'] == 'SubstanceParameter':
-                raise NotImplementedError('SubstanceParameter not implemented')
-        dictionary['parameters'] = parameters
-        result.m_update_from_dict(dictionary)
-
-        # Populate optimization steps
-        df = deserialize_dataframe(dictionary['_measurements_exp'])
-        for i, step in df.iterrows():
-            result.steps.append(Step(values_used=step.to_dict()))
-
-        # Populate suggested step
-        df = deserialize_dataframe(dictionary['_cached_recommendation'])
-        if not df.empty:
-            result.steps.append(Step(value_suggestion=df.to_dict()))
-
-        return result
+    n_pending_recommendations = Quantity(
+        type=int,
+        description='Number of recommended steps that have not yet been measured.',
+    )
+    n_batches_done = Quantity(
+        type=int,
+        description='Number of measurement batches added to the campaign.',
+    )
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
 
-        self.n_steps = len(self.steps or [])
+        steps = self.steps or []
+        self.n_steps = len(steps)
+        self.n_pending_recommendations = sum(bool(step.recommended) for step in steps)
+        self.n_measurements = self.n_steps - self.n_pending_recommendations
 
+        # Create a separate progress plot for each target of the objective. The
+        # individual steps are not plotted: they are shown as a table directly from
+        # the ``steps`` subsection.
+        targets = (self.objective.targets if self.objective else None) or []
+        self.figures = [
+            figure for target in targets if (figure := self._progress_figure(target))
+        ]
+
+    def _find_step_quantity(self, name: str):
+        """Return the step quantity that stores the given BayBE variable/target.
+
+        The step values live on a generated ``CampaignStep`` subclass whose
+        quantities each carry the original BayBE column name in their ``more`` dict.
+        """
         if not self.steps:
-            return
+            return None
+        for quantity in self.steps[0].m_def.all_quantities.values():
+            if quantity.more and quantity.more.get('baybe_name') == name:
+                return quantity
+        return None
 
-        # Gather information from the steps into a single list
-        figures = []
-        steps_list = []
-        for step in self.steps:
-            value = step.values_used or step.values_recommended
-            if value:
-                steps_list.append(value)
-        steps_df = pd.DataFrame.from_dict(steps_list)
+    def _progress_figure(self, target: Target) -> PlotlyFigure | None:
+        """Create a plot of the measured target values against the step number."""
+        quantity = self._find_step_quantity(target.name)
+        if quantity is None:
+            return None
 
-        # Create a separate plot for each objective. TODO: The number of plots
-        # to create should probably be limited, or at least the number that are
-        # shown should be limited.
-        targets = [self.objective.target]
-        for target in targets:
-            # Generate a plot that shows how the optimization progresses each step
-            target_name = target.name
-            figure = go.Figure()
-            figure.add_trace(
-                go.Scatter(
-                    x=steps_df['BatchNr'],
-                    y=steps_df[target_name],
-                    mode='lines+markers',
-                )
-            )
-            figure.update_layout(
-                template='plotly_white',
-                title='Progress',
-                xaxis_title='Iteration',
-                yaxis_title=target_name,
-            )
-            figures.append(
-                PlotlyFigure(label=target_name, figure=figure.to_plotly_json())
-            )
+        # Recommended steps have not been measured yet and are left out. The step
+        # number is the position in ``steps``, matching the order of the steps table.
+        steps, values = [], []
+        for number, step in enumerate(self.steps, start=1):
+            value = getattr(step, quantity.name, None)
+            if step.recommended or value is None:
+                continue
+            # Quantities carrying a unit come back as pint quantities.
+            steps.append(number)
+            values.append(float(getattr(value, 'magnitude', value)))
+        if not values:
+            return None
 
-        # Create a table of the traversed search space from last to first step.
-        # Recommended, but not yet tried values are added to the table as well.
-        steps_df = steps_df[::-1]
         figure = go.Figure(
             data=[
-                go.Table(
-                    header=dict(
-                        values=list(steps_df.columns),
-                        align='left',
-                    ),
-                    cells=dict(
-                        values=steps_df.transpose().values.tolist(),
-                        align='left',
-                    ),
-                )
+                go.Scatter(x=steps, y=values, mode='markers', name='Recorded values'),
+                go.Scatter(
+                    x=steps,
+                    y=_best_so_far(values, target),
+                    mode='lines',
+                    line_shape='hv',
+                    line_dash='dash',
+                    name='Best so far',
+                ),
             ]
         )
+        if target.mode in ('MATCH', 'MISMATCH') and target.match_value is not None:
+            figure.add_trace(
+                go.Scatter(
+                    x=[steps[0], steps[-1]],
+                    y=[target.match_value] * 2,
+                    mode='lines',
+                    line_dash='dot',
+                    name='Match value',
+                )
+            )
+        y_title = target.name
+        if quantity.unit is not None:
+            y_title = f'{target.name} ({quantity.unit:~P})'
         figure.update_layout(
             template='plotly_white',
-            margin=dict(l=0, r=0, t=0, b=0),
-            width=800,
+            xaxis_title='Step',
+            xaxis_tickformat='d',
+            yaxis_title=y_title,
+            showlegend=True,
+            legend=dict(orientation='h', yanchor='bottom', y=1.02, x=0),
         )
-        figures.append(PlotlyFigure(label='Progress', figure=figure.to_plotly_json()))
-        self.figures = figures
+        return PlotlyFigure(label=target.name, figure=figure.to_plotly_json())
+
+
+def _best_so_far(values: list[float], target: Target) -> list[float]:
+    """Return the running best of the given target values.
+
+    For MATCH (MISMATCH) targets the best value is the one closest to (farthest
+    from) the match value, where values beyond the match value count as exact
+    matches for the '>=' and '<=' match modes. Otherwise the best value is the
+    largest or smallest one. When the target mode is unknown, the ``minimize`` flag
+    is used, so the result is a best-effort estimate for such targets.
+    """
+    mode = target.mode
+    if mode is None:
+        mode = 'MIN' if target.minimize else 'MAX'
+
+    def score(value: float) -> float:
+        """Return a score for the value, higher is better."""
+        if mode in ('MATCH', 'MISMATCH') and target.match_value is not None:
+            difference = value - target.match_value
+            if target.match_mode == '>=':
+                difference = min(difference, 0.0)
+            elif target.match_mode == '<=':
+                difference = max(difference, 0.0)
+            return abs(difference) if mode == 'MISMATCH' else -abs(difference)
+        return -value if mode == 'MIN' else value
+
+    best_values = []
+    for value in values:
+        best = best_values[-1] if best_values else value
+        best_values.append(value if score(value) > score(best) else best)
+    return best_values
 
 
 m_package.__init_metainfo__()

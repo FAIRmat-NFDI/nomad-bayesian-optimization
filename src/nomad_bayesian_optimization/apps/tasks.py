@@ -5,7 +5,10 @@ from nomad.config.models.ui import (
     Menu,
     MenuItemHistogram,
     MenuItemTerms,
-    SearchQuantities,
+    RowActionNorth,
+    RowActions,
+    RowActionURL,
+    Rows,
 )
 
 schema_name = 'nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization'  # noqa: E501
@@ -13,12 +16,12 @@ app = App(
     label='Bayesian Optimizations Tasks',
     path='bayesian-optimization-tasks',
     category='Bayesian Optimization',
-    search_quantities=SearchQuantities(include=[f'*#{schema_name}']),
     columns=[
         Column(search_quantity='entry_create_time', selected=True),
         Column(search_quantity=f'data.status#{schema_name}', selected=True),
         Column(
-            search_quantity=f'data.objective.target.name#{schema_name}', selected=True
+            search_quantity=f'data.objective.targets[*].name#{schema_name}',
+            selected=True,
         ),
         Column(
             search_quantity=f'data.parameters[*].name#{schema_name}',
@@ -35,29 +38,38 @@ app = App(
                 title='Objective',
                 items=[
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.type#{schema_name}',
+                        search_quantity=f'data.objective.type#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.name#{schema_name}',
+                        search_quantity=f'data.objective.targets.type#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.mode#{schema_name}',
+                        search_quantity=f'data.objective.targets.name#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemTerms(
-                        search_quantity=f'data.objective.target.transformation#{schema_name}',
+                        search_quantity=f'data.objective.targets.mode#{schema_name}',
                         show_input=False,
                     ),
                     MenuItemHistogram(
                         x=Axis(
-                            search_quantity=f'data.objective.target.bounds.lower#{schema_name}'
+                            search_quantity=f'data.objective.targets.match_value#{schema_name}'
+                        )
+                    ),
+                    MenuItemTerms(
+                        search_quantity=f'data.objective.targets.transformation#{schema_name}',
+                        show_input=False,
+                    ),
+                    MenuItemHistogram(
+                        x=Axis(
+                            search_quantity=f'data.objective.targets.bounds.lower#{schema_name}'
                         )
                     ),
                     MenuItemHistogram(
                         x=Axis(
-                            search_quantity=f'data.objective.target.bounds.upper#{schema_name}'
+                            search_quantity=f'data.objective.targets.bounds.upper#{schema_name}'
                         )
                     ),
                 ],
@@ -99,6 +111,21 @@ app = App(
                 ],
             ),
         ]
+    ),
+    rows=Rows(
+        actions=RowActions(
+            items=[
+                RowActionURL(
+                    icon='launch', path='data.url', description='Open a link.'
+                ),
+                RowActionNorth(
+                    icon='launch',
+                    filepath='data.filepath',
+                    tool_name='jupyter',
+                    description='Open file in Jupyter',
+                ),
+            ]
+        )
     ),
     filters_locked={'section_defs.definition_qualified_name': [schema_name]},
 )
