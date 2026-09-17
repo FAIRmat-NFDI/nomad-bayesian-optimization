@@ -169,7 +169,4 @@ class BayesianOptimizationWorkflow:
             n_measurements += 1
 
         await persist(campaign_json, 'Finished')
-        return (
-            f'Campaign finished after {n_measurements} recorded '
-            f'measurement(s).'
-        )
+        return f'Campaign finished after {n_measurements} recorded measurement(s).'

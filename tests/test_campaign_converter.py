@@ -138,3 +138,69 @@ def test_search_space_type(discrete, continuous, expected):
 
 def test_no_discrete_candidates_for_continuous_search_space():
     assert discrete_candidate_count(_campaign({'type': 'RandomRecommender'})) is None
+
+
+def _legacy_match_target(T):
+    with pytest.warns(DeprecationWarning):
+        return T('y', 'MATCH', bounds=(1.0, 3.0))
+
+
+@pytest.mark.skipif(not HAS_BAYBE, reason='BayBE is required to create targets.')
+@pytest.mark.parametrize(
+    'make_target, expected',
+    [
+        pytest.param(lambda T: T('y'), {'mode': 'MAX'}, id='max'),
+        pytest.param(lambda T: T('y', minimize=True), {'mode': 'MIN'}, id='min'),
+        pytest.param(
+            lambda T: T.match_bell('y', match_value=2.0, sigma=0.2),
+            {'mode': 'MATCH', 'match_value': 2.0, 'match_mode': '='},
+            id='bell',
+        ),
+        pytest.param(
+            lambda T: T.match_triangular('y', cutoffs=(1.0, 3.0)),
+            {'mode': 'MATCH', 'match_value': 2.0, 'match_mode': '='},
+            id='triangular-cutoffs',
+        ),
+        pytest.param(
+            lambda T: T.match_absolute('y', match_value=2.0),
+            {'mode': 'MATCH', 'match_value': 2.0, 'match_mode': '='},
+            id='absolute',
+        ),
+        pytest.param(
+            lambda T: T.match_bell('y', match_value=2.0, sigma=0.2, match_mode='>='),
+            {'mode': 'MATCH', 'match_value': 2.0, 'match_mode': '>='},
+            id='bell-geq',
+        ),
+        pytest.param(
+            lambda T: T.match_bell(
+                'y', match_value=2.0, sigma=0.2, mismatch_instead=True
+            ),
+            {'mode': 'MISMATCH', 'match_value': 2.0, 'match_mode': '='},
+            id='bell-mismatch',
+        ),
+        pytest.param(
+            _legacy_match_target,
+            {'mode': 'MATCH', 'match_value': 2.0, 'match_mode': '='},
+            id='legacy-match',
+        ),
+        pytest.param(
+            lambda T: T.normalized_sigmoid('y', anchors=((0, 0.1), (10, 0.9))),
+            {},
+            id='sigmoid',
+        ),
+    ],
+)
+def test_target_goal(make_target, expected):
+    """The goal of a target is recorded regardless of how BayBE transforms it."""
+    import json
+
+    from baybe.objectives import SingleTargetObjective
+    from baybe.targets import NumericalTarget
+
+    campaign = _campaign({'type': 'RandomRecommender'})
+    target = make_target(NumericalTarget)
+    campaign['objective'] = json.loads(SingleTargetObjective(target).to_json())
+    converted = campaign_dict_to_schema_dict(campaign)['objective']['targets'][0]
+
+    for key in ('mode', 'match_value', 'match_mode'):
+        assert converted.get(key) == expected.get(key)

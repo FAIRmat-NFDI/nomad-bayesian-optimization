@@ -19,12 +19,6 @@ class Parameter(ArchiveSection):
     name = Quantity(
         type=str,
     )
-    value_reference = Quantity(
-        type=Quantity,
-    )
-    definition = Quantity(
-        type=str,
-    )
 
 
 class ContinuousParameter(Parameter):
@@ -117,9 +111,32 @@ class Target(MSection):
         description='The BayBE target class name (e.g. NumericalTarget).',
     )
     name = Quantity(type=str)
+    mode = Quantity(
+        type=MEnum('MAX', 'MIN', 'MATCH', 'MISMATCH'),
+        description="""
+        Goal for the measured (untransformed) target values: maximize, minimize,
+        match the match value or stay away from it. Not set when the goal cannot be
+        determined from the target transformation.
+        """,
+    )
+    match_value = Quantity(
+        type=float,
+        description='The value to be matched (MATCH) or avoided (MISMATCH).',
+    )
+    match_mode = Quantity(
+        type=MEnum('=', '>=', '<='),
+        description="""
+        Matching mode: with '>=' ('<=') all values above (below) the match value are
+        considered a match.
+        """,
+    )
     minimize = Quantity(
         type=bool,
-        description='Whether the target is minimized (True) or maximized (False).',
+        description="""
+        Whether the transformed target value is minimized (True) or maximized
+        (False). For transformed targets this differs from the goal for the measured
+        values, see ``mode``.
+        """,
     )
     transformation = Quantity(
         type=str,
@@ -131,6 +148,13 @@ class Target(MSection):
     transformation_parameters = Quantity(
         type=JSON,
         description='Full serialized transformation, including its parameters.',
+    )
+    constructor_info = Quantity(
+        type=JSON,
+        description="""
+        The BayBE constructor used to create the target (e.g. match_bell) and its
+        arguments.
+        """,
     )
     weight = Quantity(
         type=float,
@@ -319,9 +343,7 @@ class BayesianOptimization(PlotSection, Schema):
 
         figure = go.Figure(
             data=[
-                go.Scatter(
-                    x=steps, y=values, mode='markers', name='Recorded values'
-                ),
+                go.Scatter(x=steps, y=values, mode='markers', name='Recorded values'),
                 go.Scatter(
                     x=steps,
                     y=_best_so_far(values, target),
@@ -332,6 +354,16 @@ class BayesianOptimization(PlotSection, Schema):
                 ),
             ]
         )
+        if target.mode in ('MATCH', 'MISMATCH') and target.match_value is not None:
+            figure.add_trace(
+                go.Scatter(
+                    x=[steps[0], steps[-1]],
+                    y=[target.match_value] * 2,
+                    mode='lines',
+                    line_dash='dot',
+                    name='Match value',
+                )
+            )
         y_title = target.name
         if quantity.unit is not None:
             y_title = f'{target.name} ({quantity.unit:~P})'
@@ -349,25 +381,31 @@ class BayesianOptimization(PlotSection, Schema):
 def _best_so_far(values: list[float], target: Target) -> list[float]:
     """Return the running best of the given target values.
 
-    For match targets (with a ``BellTransformation`` or ``TriangularTransformation``)
-    the best value is the one closest to the match value. Otherwise the best value
-    is the smallest or largest one, depending on whether the target is minimized.
-    Other transformations (e.g. chained ones) are not interpreted, so the result is
-    a best-effort estimate for them.
+    For MATCH (MISMATCH) targets the best value is the one closest to (farthest
+    from) the match value, where values beyond the match value count as exact
+    matches for the '>=' and '<=' match modes. Otherwise the best value is the
+    largest or smallest one. When the target mode is unknown, the ``minimize`` flag
+    is used, so the result is a best-effort estimate for such targets.
     """
-    parameters = target.transformation_parameters or {}
-    match_value = parameters.get('center', parameters.get('peak'))
+    mode = target.mode
+    if mode is None:
+        mode = 'MIN' if target.minimize else 'MAX'
+
+    def score(value: float) -> float:
+        """Return a score for the value, higher is better."""
+        if mode in ('MATCH', 'MISMATCH') and target.match_value is not None:
+            difference = value - target.match_value
+            if target.match_mode == '>=':
+                difference = min(difference, 0.0)
+            elif target.match_mode == '<=':
+                difference = max(difference, 0.0)
+            return abs(difference) if mode == 'MISMATCH' else -abs(difference)
+        return -value if mode == 'MIN' else value
 
     best_values = []
     for value in values:
         best = best_values[-1] if best_values else value
-        if match_value is not None:
-            is_better = abs(value - match_value) < abs(best - match_value)
-        elif target.minimize:
-            is_better = value < best
-        else:
-            is_better = value > best
-        best_values.append(value if is_better else best)
+        best_values.append(value if score(value) > score(best) else best)
     return best_values
 
 

@@ -124,9 +124,7 @@ def _build_parameter(variable: VariableSpec) -> Any:
         )
     if kind == 'categorical':
         if not variable.values:
-            raise ValueError(
-                f"Categorical variable '{variable.name}' requires values."
-            )
+            raise ValueError(f"Categorical variable '{variable.name}' requires values.")
         return CategoricalParameter(
             name=variable.name,
             values=list(variable.values),
@@ -173,8 +171,7 @@ def _build_target(target: TargetSpec) -> Any:
     if mode == 'MATCH':
         if target.match_value is None or target.sigma is None:
             raise ValueError(
-                f"Target '{target.name}' in MATCH mode requires match_value and "
-                'sigma.'
+                f"Target '{target.name}' in MATCH mode requires match_value and sigma."
             )
         return NumericalTarget.match_bell(
             name=target.name,

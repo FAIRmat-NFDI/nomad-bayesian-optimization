@@ -68,9 +68,7 @@ class TargetSpec(BaseModel):
     mode: Literal['MAX', 'MIN', 'MATCH'] = Field(
         'MAX', description='Whether to maximize, minimize or match a target value.'
     )
-    match_value: float | None = Field(
-        None, description='Value to match (MATCH mode).'
-    )
+    match_value: float | None = Field(None, description='Value to match (MATCH mode).')
     sigma: float | None = Field(
         None, description='Width of the bell transformation (MATCH mode).'
     )
@@ -98,9 +96,7 @@ class BayesianOptimizationInput(BaseModel):
     variables: list[VariableSpec] = Field(
         ..., description='The variables spanning the search space.'
     )
-    targets: list[TargetSpec] = Field(
-        ..., description='The optimization targets.'
-    )
+    targets: list[TargetSpec] = Field(..., description='The optimization targets.')
     batch_size: int = Field(
         1, description='Number of measurements to suggest per iteration.'
     )

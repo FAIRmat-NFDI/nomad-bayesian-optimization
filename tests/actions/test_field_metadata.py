@@ -136,9 +136,7 @@ def test_iter_matching_data_sections_warns_when_nothing_matches(caplog):
     context = _FakeContext({'e1': _FakeArchive(sample)})
 
     with caplog.at_level(logging.WARNING):
-        matched = list(
-            iter_matching_data_sections(upload, context, 'NoSuchSchema')
-        )
+        matched = list(iter_matching_data_sections(upload, context, 'NoSuchSchema'))
     assert matched == []
     # The warning names the requested schema and the schemas actually seen.
     assert any(

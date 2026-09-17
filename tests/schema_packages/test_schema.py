@@ -146,30 +146,53 @@ def test_progress_figure_skips_recommended_steps():
             Target(minimize=True), [12.0, 8.0, 10.0], [12.0, 8.0, 8.0], id='min'
         ),
         pytest.param(
-            Target(
-                minimize=False,
-                transformation_parameters={
-                    'type': 'BellTransformation',
-                    'center': 80.0,
-                    'sigma': 5.0,
-                },
-            ),
+            Target(mode='MAX', minimize=True),
+            [70.0, 60.0, 80.0],
+            [70.0, 70.0, 80.0],
+            id='mode-overrides-minimize',
+        ),
+        pytest.param(
+            Target(mode='MATCH', match_value=80.0, match_mode='='),
             [70.0, 95.0, 78.0],
             [70.0, 70.0, 78.0],
-            id='bell',
+            id='match',
+        ),
+        pytest.param(
+            Target(mode='MATCH', match_value=2.0, match_mode='='),
+            [1.6, 2.2, 1.9],
+            [1.6, 2.2, 1.9],
+            id='match-closer',
+        ),
+        pytest.param(
+            Target(mode='MATCH', match_value=2.0, match_mode='>='),
+            [1.0, 1.5, 3.0, 2.0],
+            [1.0, 1.5, 3.0, 3.0],
+            id='match-geq',
+        ),
+        pytest.param(
+            Target(mode='MATCH', match_value=2.0, match_mode='<='),
+            [3.0, 2.5, 1.0, 2.0],
+            [3.0, 2.5, 1.0, 1.0],
+            id='match-leq',
+        ),
+        pytest.param(
+            Target(mode='MISMATCH', match_value=2.0, match_mode='='),
+            [2.1, 1.5, 2.3],
+            [2.1, 1.5, 1.5],
+            id='mismatch',
         ),
         pytest.param(
             Target(
                 minimize=False,
                 transformation_parameters={
-                    'type': 'TriangularTransformation',
-                    'cutoffs': {'lower': 1.5, 'upper': 2.5},
-                    'peak': 2.0,
+                    'type': 'SigmoidTransformation',
+                    'center': 5.0,
+                    'steepness': 0.4,
                 },
             ),
-            [1.6, 2.2, 1.9],
-            [1.6, 2.2, 1.9],
-            id='triangular',
+            [4.0, 9.0, 5.0],
+            [4.0, 9.0, 9.0],
+            id='unknown-mode',
         ),
     ],
 )

@@ -59,7 +59,11 @@ def test_build_mixed_search_space():
                 encoding='OHE',
             ),
         ],
-        targets=[TargetSpec(name='refractive_index', mode='MATCH', match_value=2.0, sigma=0.2)],
+        targets=[
+            TargetSpec(
+                name='refractive_index', mode='MATCH', match_value=2.0, sigma=0.2
+            )
+        ],
     )
     campaign = build_campaign(spec)
 
@@ -166,7 +170,11 @@ def test_substance_variable():
             'values',
         ),
         (
-            [VariableSpec(name='t', kind='continuous', lower_bound=0.0, upper_bound=1.0)],
+            [
+                VariableSpec(
+                    name='t', kind='continuous', lower_bound=0.0, upper_bound=1.0
+                )
+            ],
             [TargetSpec(name='y', mode='MATCH')],
             'match_value',
         ),

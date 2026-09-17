@@ -105,6 +105,63 @@ def _extract_bounds(transformation: dict | None) -> dict | None:
     return None
 
 
+def _interval_center(interval: Any) -> float | None:
+    """Return the center of an interval given as a ``(lower, upper)`` pair or dict."""
+    if isinstance(interval, dict):
+        interval = (interval.get('lower'), interval.get('upper'))
+    if isinstance(interval, (list, tuple)) and len(interval) == 2:  # noqa: PLR2004
+        lower, upper = interval
+        if lower is not None and upper is not None:
+            return (lower + upper) / 2
+    return None
+
+
+def _target_goal(target: dict) -> dict:
+    """Determine the goal (``mode``) of a serialized BayBE target.
+
+    Match targets are transformed so that BayBE can maximize or minimize the
+    transformed value, which means that ``minimize`` alone does not tell what
+    happens to the measured values. The goal is therefore read from the
+    ``constructor_info`` that BayBE stores for targets created with e.g.
+    ``NumericalTarget.match_bell``. Targets created without such a constructor
+    (e.g. with the legacy ``MATCH`` mode) are recognized from their bell or
+    triangular transformation. Returns an empty dict when the goal cannot be
+    determined (e.g. for sigmoid or custom chained transformations).
+    """
+    minimize = bool(target.get('minimize'))
+    info = target.get('constructor_info')
+    info = info if isinstance(info, dict) else {}
+    transformation = target.get('transformation')
+    transformation = transformation if isinstance(transformation, dict) else {}
+    transformation_type = transformation.get('type')
+
+    if str(info.get('constructor', '')).startswith('match_'):
+        match_value = info.get('match_value')
+        if match_value is None:
+            # ``match_triangular`` may be given only cutoffs, centered on the value.
+            match_value = _interval_center(info.get('cutoffs'))
+        return {
+            'mode': 'MISMATCH' if info.get('mismatch_instead') else 'MATCH',
+            'match_value': match_value,
+            'match_mode': info.get('match_mode') or '=',
+        }
+
+    match_value_keys = {
+        'BellTransformation': 'center',
+        'TriangularTransformation': 'peak',
+    }
+    if transformation_type in match_value_keys:
+        return {
+            'mode': 'MISMATCH' if minimize else 'MATCH',
+            'match_value': transformation.get(match_value_keys[transformation_type]),
+            'match_mode': '=',
+        }
+
+    if transformation_type in (None, 'IdentityTransformation'):
+        return {'mode': 'MIN' if minimize else 'MAX'}
+    return {}
+
+
 def _convert_discrete_parameter(parameter: dict) -> dict | None:
     """Convert a single serialized BayBE *discrete* parameter into a schema dict."""
     ptype = parameter.get('type')
@@ -168,7 +225,9 @@ def _convert_target(target: dict, weight: float | None = None) -> dict:
         'minimize': target.get('minimize'),
         'transformation': transformation_type,
         'transformation_parameters': transformation,
+        'constructor_info': target.get('constructor_info'),
         'weight': weight,
+        **_target_goal(target),
     }
     bounds = _extract_bounds(transformation)
     if bounds is not None:

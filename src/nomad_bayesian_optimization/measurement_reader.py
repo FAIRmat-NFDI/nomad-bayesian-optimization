@@ -87,7 +87,7 @@ def _matches_schema(data_section: Any, schema_name: str) -> bool:
     dotted segment (class name), so a short ``schema_name`` like ``TADFMolecule``
     matches ``…tadf_molecules.TADFMolecule`` regardless of the module path given.
     """
-    schema_leaf = schema_name.split('.')[-1]
+    schema_leaf = schema_name.rsplit('.', maxsplit=1)[-1]
     return any(
         candidate == schema_name
         or candidate.endswith(schema_name)
@@ -231,6 +231,7 @@ def resolve_field_metadata(
     schema_name: str,
     variables: list[VariableSpec],
     targets: list[TargetSpec],
+    *,
     logger: Any = None,
 ) -> dict[str, dict[str, Any]]:
     """Resolve type/unit/description for each variable/target from the schema.
@@ -287,6 +288,7 @@ def read_measurement_records(
     schema_name: str,
     variables: list[VariableSpec],
     targets: list[TargetSpec],
+    *,
     entry_ids: list[str] | None = None,
     logger: Any = None,
 ) -> list[dict[str, Any]]:

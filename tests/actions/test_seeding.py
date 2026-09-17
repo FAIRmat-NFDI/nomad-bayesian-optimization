@@ -16,9 +16,7 @@ class _FakeCampaign:
         return self._measurements
 
     def add_measurements(self, df):
-        self._measurements = pd.concat(
-            [self._measurements, df], ignore_index=True
-        )
+        self._measurements = pd.concat([self._measurements, df], ignore_index=True)
 
 
 def test_record_key_is_order_independent_and_rounds_floats():

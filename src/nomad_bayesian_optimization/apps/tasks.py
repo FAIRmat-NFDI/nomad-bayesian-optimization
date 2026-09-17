@@ -5,10 +5,10 @@ from nomad.config.models.ui import (
     Menu,
     MenuItemHistogram,
     MenuItemTerms,
-    Rows,
+    RowActionNorth,
     RowActions,
     RowActionURL,
-    RowActionNorth
+    Rows,
 )
 
 schema_name = 'nomad_bayesian_optimization.schema_packages.bayesian_optimization.BayesianOptimization'  # noqa: E501
@@ -48,6 +48,15 @@ app = App(
                     MenuItemTerms(
                         search_quantity=f'data.objective.targets.name#{schema_name}',
                         show_input=False,
+                    ),
+                    MenuItemTerms(
+                        search_quantity=f'data.objective.targets.mode#{schema_name}',
+                        show_input=False,
+                    ),
+                    MenuItemHistogram(
+                        x=Axis(
+                            search_quantity=f'data.objective.targets.match_value#{schema_name}'
+                        )
                     ),
                     MenuItemTerms(
                         search_quantity=f'data.objective.targets.transformation#{schema_name}',
@@ -106,8 +115,15 @@ app = App(
     rows=Rows(
         actions=RowActions(
             items=[
-                RowActionURL(icon="launch", path="data.url", description="Open a link."),
-                RowActionNorth(icon="launch", filepath="data.filepath", tool_name='jupyter', description="Open file in Jupyter")
+                RowActionURL(
+                    icon='launch', path='data.url', description='Open a link.'
+                ),
+                RowActionNorth(
+                    icon='launch',
+                    filepath='data.filepath',
+                    tool_name='jupyter',
+                    description='Open file in Jupyter',
+                ),
             ]
         )
     ),
