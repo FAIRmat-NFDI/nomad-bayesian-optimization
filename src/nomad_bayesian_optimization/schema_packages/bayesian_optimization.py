@@ -173,6 +173,10 @@ class SurrogateModel(MSection):
 
 class AcquisitionFunction(MSection):
     type = Quantity(type=str)
+    abbreviation = Quantity(
+        type=str,
+        description='Short name of the acquisition function (e.g. qLogEI).',
+    )
 
 
 class Recommender(MSection):
@@ -182,6 +186,13 @@ class Recommender(MSection):
     surrogate_model = SubSection(section_def=SurrogateModel)
     initial_recommender = SubSection(section_def='Recommender')
     recommender = SubSection(section_def='Recommender')
+    switch_after = Quantity(
+        type=int,
+        description="""
+        Number of batches after which a meta recommender switches from the initial
+        recommender to the main recommender.
+        """,
+    )
     acquisition_function = SubSection(section_def=AcquisitionFunction)
     hybrid_sampler = Quantity(type=str)
     sampling_percentage = Quantity(type=float)
@@ -223,6 +234,20 @@ class BayesianOptimization(PlotSection, Schema):
         default='Initializing',
         description='Optimization status.',
     )
+    search_space_type = Quantity(
+        type=MEnum('Discrete', 'Continuous', 'Hybrid'),
+        description="""
+        Type of the search space: purely discrete, purely continuous or a hybrid of
+        both.
+        """,
+    )
+    n_candidates = Quantity(
+        type=int,
+        description="""
+        Number of candidates in the discrete part of the search space. Not set for
+        purely continuous search spaces.
+        """,
+    )
     parameters = SubSection(section_def=Parameter, repeats=True)
     objective = SubSection(section_def=Objective)
     recommender = SubSection(section_def=Recommender)
@@ -231,11 +256,26 @@ class BayesianOptimization(PlotSection, Schema):
         type=int,
         description='Number of steps in optimization.',
     )
+    n_measurements = Quantity(
+        type=int,
+        description='Number of steps with recorded measurements.',
+    )
+    n_pending_recommendations = Quantity(
+        type=int,
+        description='Number of recommended steps that have not yet been measured.',
+    )
+    n_batches_done = Quantity(
+        type=int,
+        description='Number of measurement batches added to the campaign.',
+    )
 
     def normalize(self, archive, logger):
         super().normalize(archive, logger)
 
-        self.n_steps = len(self.steps or [])
+        steps = self.steps or []
+        self.n_steps = len(steps)
+        self.n_pending_recommendations = sum(bool(step.recommended) for step in steps)
+        self.n_measurements = self.n_steps - self.n_pending_recommendations
 
         # Create a separate progress plot for each target of the objective. The
         # individual steps are not plotted: they are shown as a table directly from

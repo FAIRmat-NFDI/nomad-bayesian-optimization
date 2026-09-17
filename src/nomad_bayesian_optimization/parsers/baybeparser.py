@@ -5,6 +5,7 @@ from nomad.parsing import MatchingParser
 
 from nomad_bayesian_optimization.campaign_converter import (
     campaign_dict_to_schema_dict,
+    discrete_candidate_count,
     measured_records,
     recommended_records,
 )
@@ -47,12 +48,13 @@ class BayBEParser(MatchingParser):
         field_specs = derive_step_fields(campaign, field_meta)
         step_def = attach_step_package(archive, field_specs)
 
-        # Decoding the serialized measurement dataframes requires BayBE (and
-        # pandas) to be importable. Import lazily so that the parser entry point
-        # can still be loaded in environments without the (heavy) BayBE stack.
+        # Decoding the serialized dataframes requires BayBE (and pandas) to be
+        # importable. Import lazily so that the parser entry point can still be
+        # loaded in environments without the (heavy) BayBE stack.
         try:
             measured = measured_records(campaign)
             recommended = recommended_records(campaign)
+            archive.data.n_candidates = discrete_candidate_count(campaign)
         except ImportError as exc:
             if logger is not None:
                 logger.error(

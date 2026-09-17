@@ -12,9 +12,11 @@ BayBE serializes every polymorphic node (parameter, objective, target,
 transformation, recommender) with a ``"type"`` key holding its class name and
 uses field aliases (``targets``, ``values``, ``target``, ``bounds``, ``data``,
 ``encoding``), which makes the dictionary straightforward to walk. The only
-values that require BayBE itself are the measurement/recommendation dataframes,
-which are stored as base64-encoded pickles and are decoded lazily with
-``baybe.serialization.utils.deserialize_dataframe``.
+values that require BayBE itself are the dataframes (measurements,
+recommendations and the discrete search space candidates), which are stored as
+base64-encoded pickles and are decoded lazily with
+``baybe.serialization.utils.deserialize_dataframe``. The short names of
+acquisition functions are also looked up lazily from BayBE when available.
 """
 
 from __future__ import annotations
@@ -199,20 +201,137 @@ def _convert_objective(objective: dict | None) -> dict | None:
     return result
 
 
-def _convert_recommender(recommender: dict | None) -> dict | None:
+def _convert_surrogate(surrogate: dict | None) -> dict | None:
+    """Convert a serialized BayBE surrogate model into a schema dict.
+
+    BayBE wraps the surrogate in a ``CompositeSurrogate`` that replicates a single
+    template surrogate for each target; in that case the template is reported.
+    """
+    if not isinstance(surrogate, dict):
+        return None
+    surrogates = surrogate.get('surrogates')
+    if (
+        surrogate.get('type') == 'CompositeSurrogate'
+        and isinstance(surrogates, dict)
+        and surrogates.get('type') == '_ReplicationMapping'
+        and isinstance(surrogates.get('template'), dict)
+    ):
+        surrogate = surrogates['template']
+
+    result = {'m_def': _m('SurrogateModel'), 'type': surrogate.get('type')}
+    kernel = surrogate.get('kernel_or_factory')
+    if isinstance(kernel, dict):
+        result['kernel_factory'] = {
+            'm_def': _m('KernelFactory'),
+            'type': kernel.get('type'),
+        }
+    return result
+
+
+def _acquisition_abbreviation(type_name: str) -> str | None:
+    """Return BayBE's short name (e.g. ``qLogEI``) for an acquisition function.
+
+    Returns ``None`` when BayBE is not installed or the class is unknown.
+    """
+    try:
+        import baybe.acquisition
+    except ImportError:
+        return None
+    return getattr(getattr(baybe.acquisition, type_name, None), 'abbreviation', None)
+
+
+def _convert_acquisition_function(
+    acquisition_function: dict | None, objective_type: str | None
+) -> dict:
+    """Convert a serialized BayBE acquisition function into a schema dict.
+
+    When no acquisition function is set, BayBE picks a default depending on the
+    objective (see ``BayesianRecommender._get_acquisition_function``), which is
+    reported instead.
+    """
+    if isinstance(acquisition_function, dict):
+        type_name = acquisition_function.get('type')
+    elif objective_type == 'ParetoObjective':
+        type_name = 'qLogNoisyExpectedHypervolumeImprovement'
+    else:
+        type_name = 'qLogExpectedImprovement'
+    return {
+        'm_def': _m('AcquisitionFunction'),
+        'type': type_name,
+        'abbreviation': _acquisition_abbreviation(type_name),
+    }
+
+
+def _convert_recommender(
+    recommender: dict | None,
+    objective_type: str | None = None,
+    include_config: bool = True,
+) -> dict | None:
     """Convert a serialized BayBE recommender into a schema dict.
 
-    Recommenders can be deeply nested and come in many variants, so we store the
-    class name plus the full serialized configuration as JSON rather than
-    modelling every field.
+    The main building blocks (nested recommenders of a meta recommender, surrogate
+    model, acquisition function) are extracted, while the full serialized
+    configuration is stored as JSON on the top-level recommender, as recommenders
+    come in many variants.
     """
-    if not recommender:
+    if not recommender or not isinstance(recommender, dict):
         return None
-    return {
-        'm_def': _m('Recommender'),
-        'type': recommender.get('type'),
-        'config': recommender,
-    }
+    result: dict = {'m_def': _m('Recommender'), 'type': recommender.get('type')}
+    if include_config:
+        result['config'] = recommender
+
+    for key in ('initial_recommender', 'recommender'):
+        nested = _convert_recommender(
+            recommender.get(key), objective_type, include_config=False
+        )
+        if nested is not None:
+            result[key] = nested
+
+    surrogate = _convert_surrogate(recommender.get('surrogate_model'))
+    if surrogate is not None:
+        result['surrogate_model'] = surrogate
+
+    # Only Bayesian recommenders have an acquisition function (possibly ``None``,
+    # meaning that the BayBE default is used).
+    if 'acquisition_function' in recommender:
+        result['acquisition_function'] = _convert_acquisition_function(
+            recommender['acquisition_function'], objective_type
+        )
+
+    for key in ('switch_after', 'hybrid_sampler', 'sampling_percentage'):
+        if recommender.get(key) is not None:
+            result[key] = recommender[key]
+    return result
+
+
+def _search_space_type(discrete: dict, continuous: dict) -> str | None:
+    """Return the search space type, following BayBE's ``SearchSpace.type``."""
+    has_discrete = bool(discrete.get('parameters'))
+    has_continuous = bool(continuous.get('parameters'))
+    if has_discrete and has_continuous:
+        return 'Hybrid'
+    if has_discrete:
+        return 'Discrete'
+    if has_continuous:
+        return 'Continuous'
+    return None
+
+
+def discrete_candidate_count(campaign: dict) -> int | None:
+    """Return the number of candidates in the discrete subspace of the campaign.
+
+    Returns ``None`` when the campaign has no discrete subspace. Like
+    :func:`measured_records`, this requires BayBE to decode the serialized
+    dataframe.
+    """
+    discrete = (campaign.get('searchspace', {}) or {}).get('discrete', {}) or {}
+    if not discrete.get('parameters') or discrete.get('exp_rep') is None:
+        return None
+
+    from baybe.serialization.utils import deserialize_dataframe
+
+    df = deserialize_dataframe(discrete['exp_rep'])
+    return None if df is None else len(df)
 
 
 def campaign_dict_to_schema_dict(campaign: dict, status: str | None = None) -> dict:
@@ -244,12 +363,21 @@ def campaign_dict_to_schema_dict(campaign: dict, status: str | None = None) -> d
     # attaches to ``archive.definitions`` and instantiates from the decoded
     # measurement/recommendation records (:func:`measured_records`,
     # :func:`recommended_records`).
+    objective = campaign.get('objective')
     result: dict = {
         'm_def': _m('BayesianOptimization'),
         'parameters': parameters,
-        'objective': _convert_objective(campaign.get('objective')),
-        'recommender': _convert_recommender(campaign.get('recommender')),
+        'objective': _convert_objective(objective),
+        'recommender': _convert_recommender(
+            campaign.get('recommender'),
+            objective_type=(objective or {}).get('type'),
+        ),
     }
+    search_space_type = _search_space_type(discrete, continuous)
+    if search_space_type is not None:
+        result['search_space_type'] = search_space_type
+    if campaign.get('n_batches_done') is not None:
+        result['n_batches_done'] = campaign['n_batches_done']
     if status is not None:
         result['status'] = status
     return result

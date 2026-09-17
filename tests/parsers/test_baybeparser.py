@@ -70,6 +70,8 @@ def build_discrete(tmp_path):
         'minimize': [False],
         'n_steps': 3,
         'measured_target_value': 82.0,
+        'search_space_type': 'Discrete',
+        'n_candidates': 9,
     }
 
 
@@ -100,6 +102,8 @@ def build_continuous(tmp_path):
         'minimize': [True],
         'n_steps': 2,
         'measured_target_value': 8.0,
+        'search_space_type': 'Continuous',
+        'n_candidates': None,
     }
 
 
@@ -134,6 +138,8 @@ def build_hybrid(tmp_path):
         'minimize': [False],
         'n_steps': 2,
         'measured_target_value': 2.05,
+        'search_space_type': 'Hybrid',
+        'n_candidates': 3,
     }
 
 
@@ -173,6 +179,8 @@ def build_desirability(tmp_path):
         'scalarizer': 'MEAN',
         'n_steps': 2,
         'measured_target_value': 78.0,
+        'search_space_type': 'Hybrid',
+        'n_candidates': 3,
     }
 
 
@@ -197,6 +205,10 @@ def test_parse_campaign(builder_name, tmp_path):
     assert {p.name for p in data.parameters} == expected['param_names']
     assert {p.m_def.name for p in data.parameters} == expected['param_types']
 
+    # Search space
+    assert data.search_space_type == expected['search_space_type']
+    assert data.n_candidates == expected['n_candidates']
+
     # Objective and targets
     assert data.objective.type == expected['objective_type']
     assert [t.name for t in data.objective.targets] == expected['target_names']
@@ -219,6 +231,10 @@ def test_parse_campaign(builder_name, tmp_path):
     # Steps / measurements are stored as typed instances of the generated schema.
     assert data.n_steps == expected['n_steps']
     assert len(data.steps) == expected['n_steps']
+    assert data.n_measurements == expected['n_steps']
+    assert data.n_pending_recommendations == 0
+    # All measurements of the fixture are added as a single batch.
+    assert data.n_batches_done == 1
     target_quantity = sanitize_quantity_name(expected['target_names'][0])
     measured = [
         getattr(step, target_quantity)
@@ -229,6 +245,19 @@ def test_parse_campaign(builder_name, tmp_path):
 
     # A progress figure is produced for each target.
     assert [f.label for f in data.figures] == expected['target_names']
+
+    # The default BayBE recommender is extracted into the recommender sections.
+    recommender = data.recommender
+    assert recommender.type == 'TwoPhaseMetaRecommender'
+    assert recommender.config['type'] == 'TwoPhaseMetaRecommender'
+    assert recommender.switch_after == 1
+    assert recommender.initial_recommender.type == 'RandomRecommender'
+    assert recommender.initial_recommender.acquisition_function is None
+    bayesian = recommender.recommender
+    assert bayesian.type == 'BotorchRecommender'
+    assert bayesian.surrogate_model.type == 'GaussianProcessSurrogate'
+    assert bayesian.acquisition_function.type == 'qLogExpectedImprovement'
+    assert bayesian.acquisition_function.abbreviation == 'qLogEI'
 
     if 'weights' in expected:
         assert [t.weight for t in data.objective.targets] == expected['weights']

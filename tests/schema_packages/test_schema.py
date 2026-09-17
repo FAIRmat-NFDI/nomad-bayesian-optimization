@@ -125,6 +125,10 @@ def test_progress_figure_skips_recommended_steps():
     )
     normalize_all(archive)
 
+    assert archive.data.n_steps == 4
+    assert archive.data.n_measurements == 3
+    assert archive.data.n_pending_recommendations == 1
+
     measured, best = archive.data.figures[0].figure['data']
     assert list(measured['x']) == [1, 2, 3]
     assert list(best['x']) == [1, 2, 3]
