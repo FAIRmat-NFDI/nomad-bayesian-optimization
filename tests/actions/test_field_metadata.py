@@ -12,6 +12,7 @@ from nomad.metainfo import MSection, Quantity, SchemaPackage, SubSection
 
 from nomad_bayesian_optimization.measurement_reader import (
     _coarse_type,
+    _data_section_path,
     _matches_schema,
     _resolve_quantity_def,
     iter_matching_data_sections,
@@ -47,6 +48,23 @@ def test_resolve_quantity_def_and_coarse_type():
 
     assert _coarse_type(_resolve_quantity_def(section_def, 'label')) == 'str'
     assert _coarse_type(_resolve_quantity_def(section_def, 'count')) == 'int'
+
+
+def test_resolve_archive_root_relative_paths():
+    """Paths given relative to the archive root resolve on the data section."""
+    section_def = MySample.m_def
+
+    temperature = _resolve_quantity_def(
+        section_def, _data_section_path('data.temperature')
+    )
+    assert temperature is not None
+    assert str(temperature.unit) == 'kelvin'
+
+    nested = _resolve_quantity_def(
+        section_def, _data_section_path('data.sub.refractive_index')
+    )
+    assert nested is not None
+    assert _coarse_type(nested) == 'float'
 
 
 def test_resolve_nested_and_missing_paths():

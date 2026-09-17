@@ -10,6 +10,7 @@ from nomad_bayesian_optimization.actions.campaign.models import (
     VariableSpec,
 )
 from nomad_bayesian_optimization.measurement_reader import (
+    _data_section_path,
     _matches_schema,
     _resolve_value,
     check_authorized,
@@ -100,6 +101,30 @@ def test_extract_record_uses_quantity_path_override():
         VariableSpec(name='temperature', quantity='params.temp', kind='continuous')
     ]
     targets = [TargetSpec(name='y', quantity='result', mode='MAX')]
+    assert extract_record(section, variables, targets) == {
+        'temperature': 300.0,
+        'y': 1.5,
+    }
+
+
+def test_data_section_path_strips_the_archive_root():
+    # Quantity paths are given relative to the archive root...
+    assert _data_section_path('data.molecular_mass') == 'molecular_mass'
+    assert _data_section_path('data.sub.value') == 'sub.value'
+    # ...but a path relative to the data section is used as it is.
+    assert _data_section_path('molecular_mass') == 'molecular_mass'
+    assert _data_section_path('metadata.entry_name') == 'metadata.entry_name'
+
+
+def test_extract_record_reads_archive_root_relative_paths():
+    section = FakeSection(
+        params=FakeSection(temp=FakeQuantity(300.0)),
+        result=FakeQuantity(1.5),
+    )
+    variables = [
+        VariableSpec(name='temperature', quantity='data.params.temp', kind='continuous')
+    ]
+    targets = [TargetSpec(name='y', quantity='data.result', mode='MAX')]
     assert extract_record(section, variables, targets) == {
         'temperature': 300.0,
         'y': 1.5,

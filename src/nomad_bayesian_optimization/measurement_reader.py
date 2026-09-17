@@ -55,6 +55,18 @@ def _resolve_value(section: Any, path: str) -> Any:
     return obj
 
 
+def _data_section_path(path: str) -> str:
+    """Turn an archive-root-relative quantity path into a data-section-relative one.
+
+    Quantity paths are given the way quantities are addressed elsewhere in NOMAD,
+    i.e. relative to the archive root (``data.molecular_mass``), but they are
+    resolved against the entry's ``data`` section. A path without the ``data.``
+    prefix is used as it is.
+    """
+    prefix = 'data.'
+    return path[len(prefix) :] if path.startswith(prefix) else path
+
+
 def _schema_candidates(data_section: Any) -> set[str]:
     """Return the names a ``data`` section can be matched against."""
     if data_section is None:
@@ -98,14 +110,16 @@ def extract_record(
     """
     record: dict[str, Any] = {}
     for variable in variables:
-        value = _resolve_value(data_section, variable.quantity or variable.name)
+        path = _data_section_path(variable.quantity or variable.name)
+        value = _resolve_value(data_section, path)
         if value is None:
             return None
         record[variable.name] = value
 
     has_target = False
     for target in targets:
-        value = _resolve_value(data_section, target.quantity or target.name)
+        path = _data_section_path(target.quantity or target.name)
+        value = _resolve_value(data_section, path)
         if value is not None:
             record[target.name] = value
             has_target = True
@@ -249,7 +263,7 @@ def resolve_field_metadata(
     unresolved: list[str] = []
     for spec in [*variables, *targets]:
         path = spec.quantity or spec.name
-        quantity_def = _resolve_quantity_def(section_def, path)
+        quantity_def = _resolve_quantity_def(section_def, _data_section_path(path))
         if quantity_def is None:
             unresolved.append(path)
             continue

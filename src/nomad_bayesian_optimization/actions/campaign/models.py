@@ -22,8 +22,9 @@ class VariableSpec(BaseModel):
     )
     quantity: str | None = Field(
         None,
-        description='Dot-separated path of the quantity within the target schema '
-        "``data`` section to read this variable from. Defaults to ``name``.",
+        description='Dot-separated path of the quantity to read this variable from, '
+        'relative to the archive root, e.g. ``data.molecular_mass``. Defaults to '
+        '``name``, read from the target schema ``data`` section.',
     )
     kind: Literal['continuous', 'numerical_discrete', 'categorical', 'substance'] = (
         Field(..., description='The type of variable.')
@@ -60,8 +61,9 @@ class TargetSpec(BaseModel):
     )
     quantity: str | None = Field(
         None,
-        description='Dot-separated path of the quantity within the target schema '
-        "``data`` section to read this target from. Defaults to ``name``.",
+        description='Dot-separated path of the quantity to read this target from, '
+        'relative to the archive root, e.g. ``data.photoluminescence_quantum_yield``. '
+        'Defaults to ``name``, read from the target schema ``data`` section.',
     )
     mode: Literal['MAX', 'MIN', 'MATCH'] = Field(
         'MAX', description='Whether to maximize, minimize or match a target value.'
