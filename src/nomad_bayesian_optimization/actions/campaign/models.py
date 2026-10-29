@@ -44,6 +44,12 @@ class VariableSpec(BaseModel):
     tolerance: float | None = Field(
         None, description='Tolerance for numerical discrete variables.'
     )
+    decimals: int | None = Field(
+        None,
+        description='Number of decimals to round suggested values to (continuous '
+        'variables), e.g. 2 for steps of 0.01 or -1 for steps of 10. Suggestions are '
+        'not rounded when empty.',
+    )
     encoding: str | None = Field(
         None,
         description='Encoding for categorical (e.g. OHE, INT) or substance (e.g. '
@@ -115,20 +121,22 @@ class BayesianOptimizationInput(BaseModel):
 
 
 class DecisionInput(BaseModel):
-    """Signal payload for accepting, rejecting or finishing at a suggestion."""
+    """Signal payload for accepting, rejecting or finishing at a suggestion.
+
+    Accepting reports the entries holding the measurements performed for the
+    suggestion in the same step.
+    """
 
     action: Literal['accept', 'reject', 'finish'] = Field(
-        'accept', description='Decision on the current suggestion.'
+        'accept',
+        description='Decision on the current suggestion: accept it and report the '
+        'measured entries, reject it to get a different suggestion, or finish the '
+        'campaign.',
     )
-
-
-class ResultsInput(BaseModel):
-    """Signal payload reporting the entry that holds the recorded measurement."""
-
-    entry_id: str = Field(
-        ...,
-        description='Identifier of the entry in which the measurement results were '
-        'recorded.',
+    entry_ids: list[str] = Field(
+        default_factory=list,
+        description='Entry IDs of the measurement(s) performed for this suggestion. '
+        'Required when accepting, optional when finishing, ignored when rejecting.',
     )
 
 
@@ -141,6 +149,11 @@ class RecommendInput(BaseModel):
     campaign_json: str
     batch_size: int = 1
     pending: list[dict[str, Any]] = Field(default_factory=list)
+    decimals: dict[str, int] = Field(
+        default_factory=dict,
+        description='Number of decimals to round the suggested value of each '
+        'variable to, keyed by variable name.',
+    )
 
 
 class RecommendOutput(BaseModel):
@@ -154,7 +167,7 @@ class AddMeasurementInput(BaseModel):
     """Input for the ``read_and_add_measurement`` activity."""
 
     campaign_json: str
-    entry_id: str
+    entry_ids: list[str]
     input: BayesianOptimizationInput
 
 

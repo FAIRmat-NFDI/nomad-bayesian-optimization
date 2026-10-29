@@ -111,18 +111,21 @@ def test_make_step_instance_sets_values_and_flag():
         'substrate type': 'Si',
         'temperature': 400.0,
         'yield': 60.0,
+        'entry_id': 'e1',
         'BatchNr': 3,  # not a declared field -> ignored
     }
-    step = make_step_instance(step_def, record, specs, recommended=False)
+    step = make_step_instance(step_def, record, specs, finished=True)
     assert step.pressure == 1.5
     assert getattr(step, 'substrate_type') == 'Si'
     assert getattr(step, 'yield') == 60.0
-    assert bool(step.recommended) is False
+    assert step.finished is True
+    assert step.entry_id == 'e1'
 
     # A recommendation without a target value leaves that quantity unset.
     recommendation = {'pressure': 2.0, 'substrate type': 'GaN', 'temperature': 450.0}
-    pending = make_step_instance(step_def, recommendation, specs, recommended=True)
-    assert bool(pending.recommended) is True
+    pending = make_step_instance(step_def, recommendation, specs, finished=False)
+    assert pending.finished is False
+    assert pending.entry_id is None
     assert getattr(pending, 'yield') is None
 
 
@@ -149,7 +152,7 @@ def test_generated_schema_survives_archive_roundtrip():
             step_def,
             {'pressure': 1.0, 'substrate type': 'Si', 'temperature': 400.0},
             specs,
-            recommended=False,
+            finished=True,
         )
     )
 

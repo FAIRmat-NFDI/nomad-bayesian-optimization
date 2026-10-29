@@ -17,6 +17,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from nomad_bayesian_optimization.measurement_reader import ENTRY_ID_COLUMN
+
 if TYPE_CHECKING:
     from baybe import Campaign
 
@@ -65,9 +67,13 @@ def seed_campaign(
 
     import pandas as pd
 
-    # Dedup on the record's own columns (variable/target names); BayBE's stored
-    # measurements add internal columns (BatchNr/FitNr) that must be ignored.
-    columns = tuple(sorted({key for record in records for key in record}))
+    # Dedup on the record's own variable/target columns; BayBE's stored
+    # measurements add internal columns (BatchNr/FitNr) that must be ignored. The
+    # entry ID is left out too, as measurements recorded before entry IDs were
+    # tracked do not have it.
+    columns = tuple(
+        sorted({key for record in records for key in record} - {ENTRY_ID_COLUMN})
+    )
 
     existing_keys: set[tuple] = set()
     measurements = getattr(campaign, 'measurements', None)

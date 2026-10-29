@@ -14,6 +14,7 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
 
         from nomad_bayesian_optimization.actions.campaign.activities import (
             build_campaign,
+            clear_recommendation,
             persist_campaign,
             read_and_add_measurement,
             recommend_next,
@@ -31,6 +32,41 @@ class BayesianOptimizationActionEntryPoint(ActionEntryPoint):
                 resolve_step_field_meta,
                 recommend_next,
                 read_and_add_measurement,
+                clear_recommendation,
+                persist_campaign,
+            ],
+        )
+
+
+class SpinCoatingOptimizationActionEntryPoint(ActionEntryPoint):
+    """
+    Action suggesting spin coating parameters to reach a target film thickness.
+    """
+
+    def load(self):
+        from nomad.actions import Action
+
+        from nomad_bayesian_optimization.actions.campaign.activities import (
+            build_campaign,
+            clear_recommendation,
+            persist_campaign,
+            read_and_add_measurement,
+            recommend_next,
+            resolve_step_field_meta,
+        )
+        from nomad_bayesian_optimization.actions.spin_coating.workflows import (
+            SpinCoatingOptimizationWorkflow,
+        )
+
+        return Action(
+            task_queue=self.task_queue,
+            workflow=SpinCoatingOptimizationWorkflow,
+            activities=[
+                build_campaign,
+                resolve_step_field_meta,
+                recommend_next,
+                read_and_add_measurement,
+                clear_recommendation,
                 persist_campaign,
             ],
         )
@@ -43,5 +79,15 @@ bayesian_optimization = BayesianOptimizationActionEntryPoint(
         'seeds a BayBE campaign from existing measurement entries, suggests new '
         'measurement parameters, and iterates as the user accepts suggestions and '
         'reports the resulting entries.'
+    ),
+)
+
+spin_coating_optimization = SpinCoatingOptimizationActionEntryPoint(
+    name='Find Spin Coating Parameters for Target Thickness',
+    description=(
+        'Suggests the precursor concentration, spin coating speed and spinning time '
+        'for your next SpinCoating measurements to reach a target film thickness. '
+        'Suggestions improve as you report the measured entries, using a '
+        'human-in-the-loop Bayesian optimization campaign.'
     ),
 )

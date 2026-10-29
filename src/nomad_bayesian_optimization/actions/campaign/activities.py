@@ -104,7 +104,9 @@ async def recommend_next(data: RecommendInput) -> RecommendOutput:
     """Recommend the next batch of measurements to try.
 
     Rejected recommendations are passed back as ``pending_experiments`` so BayBE
-    avoids suggesting them again.
+    avoids suggesting them again. Variables with ``decimals`` are rounded to values
+    that can actually be set; the rounded recommendation replaces the campaign's
+    cached one so the persisted campaign shows the same values.
     """
     campaign = Campaign.from_json(data.campaign_json)
 
@@ -116,13 +118,17 @@ async def recommend_next(data: RecommendInput) -> RecommendOutput:
     else:
         recommendation = campaign.recommend(batch_size=data.batch_size)
 
+    if data.decimals:
+        recommendation = recommendation.round(data.decimals)
+        campaign._cache_recommendation(recommendation)
+
     records = json.loads(recommendation.to_json(orient='records'))
     return RecommendOutput(campaign_json=campaign.to_json(), records=records)
 
 
 @activity.defn
 async def read_and_add_measurement(data: AddMeasurementInput) -> str:
-    """Read the reported results entry and add it to the campaign."""
+    """Read the reported results entries and add them to the campaign."""
     spec = data.input
     upload = Upload.get(spec.upload_id)
     records = read_measurement_records(
@@ -131,12 +137,24 @@ async def read_and_add_measurement(data: AddMeasurementInput) -> str:
         spec.schema_name,
         spec.variables,
         spec.targets,
-        entry_ids=[data.entry_id],
+        entry_ids=data.entry_ids,
         logger=activity.logger,
     )
 
     campaign = Campaign.from_json(data.campaign_json)
     seed_campaign(campaign, records, logger=activity.logger)
+    return campaign.to_json()
+
+
+@activity.defn
+async def clear_recommendation(campaign_json: str) -> str:
+    """Drop the cached recommendation from the campaign.
+
+    Used when the campaign is finished: the last recommendation was never
+    attempted, so the persisted campaign should only hold recorded measurements.
+    """
+    campaign = Campaign.from_json(campaign_json)
+    campaign.clear_cache()
     return campaign.to_json()
 
 

@@ -63,7 +63,7 @@ def _build_archive(target_unit: str | None = None):
     ]
     for row in rows:
         archive.data.steps.append(
-            make_step_instance(step_def, row, field_specs, recommended=False)
+            make_step_instance(step_def, row, field_specs, finished=True)
         )
     return archive, field_specs
 
@@ -120,7 +120,7 @@ def test_progress_figure_skips_recommended_steps():
             step_def,
             {'pressure': 4.0, 'substrate': 'Si'},
             field_specs,
-            recommended=True,
+            finished=False,
         )
     )
     normalize_all(archive)

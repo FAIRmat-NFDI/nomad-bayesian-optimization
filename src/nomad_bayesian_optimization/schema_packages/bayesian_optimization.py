@@ -240,12 +240,19 @@ class Step(MSection):
     units and descriptions. This base class only holds fields common to every step.
     """
 
-    recommended = Quantity(
+    finished = Quantity(
         type=bool,
         description="""
-        Whether this step is a pending recommendation suggested by the optimizer
-        (True) that has not yet been measured, as opposed to a recorded measurement
-        (False).
+        Whether this step has been carried out and its measurement recorded (True),
+        as opposed to a pending recommendation suggested by the optimizer that has
+        not yet been measured (False).
+        """,
+    )
+    entry_id = Quantity(
+        type=str,
+        description="""
+        ID of the NOMAD entry holding the measurement recorded in this step. Not set
+        for pending recommendations or for measurements recorded without an entry.
         """,
     )
 
@@ -254,7 +261,7 @@ class BayesianOptimization(PlotSection, Schema):
     """Represents a single Bayesian optimization task."""
 
     status = Quantity(
-        type=MEnum('Initializing', 'Suggesting', 'Acquiring', 'Finished', 'Error'),
+        type=MEnum('Initializing', 'Suggesting', 'Finished', 'Error'),
         default='Initializing',
         description='Optimization status.',
     )
@@ -298,7 +305,7 @@ class BayesianOptimization(PlotSection, Schema):
 
         steps = self.steps or []
         self.n_steps = len(steps)
-        self.n_pending_recommendations = sum(bool(step.recommended) for step in steps)
+        self.n_pending_recommendations = sum(not step.finished for step in steps)
         self.n_measurements = self.n_steps - self.n_pending_recommendations
 
         # Create a separate progress plot for each target of the objective. The
@@ -328,12 +335,12 @@ class BayesianOptimization(PlotSection, Schema):
         if quantity is None:
             return None
 
-        # Recommended steps have not been measured yet and are left out. The step
+        # Unfinished steps have not been measured yet and are left out. The step
         # number is the position in ``steps``, matching the order of the steps table.
         steps, values = [], []
         for number, step in enumerate(self.steps, start=1):
             value = getattr(step, quantity.name, None)
-            if step.recommended or value is None:
+            if not step.finished or value is None:
                 continue
             # Quantities carrying a unit come back as pint quantities.
             steps.append(number)

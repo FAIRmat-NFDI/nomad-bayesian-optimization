@@ -29,6 +29,7 @@ from typing import Any
 import numpy as np
 from nomad.metainfo import Package, Quantity, Section
 
+from nomad_bayesian_optimization.measurement_reader import ENTRY_ID_COLUMN
 from nomad_bayesian_optimization.naming import sanitize_quantity_name
 from nomad_bayesian_optimization.schema_packages.bayesian_optimization import Step
 
@@ -167,11 +168,14 @@ def make_step_instance(
     record: dict,
     field_specs: list[FieldSpec],
     *,
-    recommended: bool,
+    finished: bool,
 ):
     """Instantiate one ``CampaignStep`` from a measurement/recommendation record."""
     instance = section_def.section_cls()
-    instance.recommended = recommended
+    instance.finished = finished
+    entry_id = record.get(ENTRY_ID_COLUMN)
+    if isinstance(entry_id, str) and entry_id:
+        instance.entry_id = entry_id
     for spec in field_specs:
         value = record.get(spec.name)
         if value is None:

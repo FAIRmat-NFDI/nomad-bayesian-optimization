@@ -66,9 +66,9 @@ class BayBEParser(MatchingParser):
 
         for record in measured:
             archive.data.steps.append(
-                make_step_instance(step_def, record, field_specs, recommended=False)
+                make_step_instance(step_def, record, field_specs, finished=True)
             )
         for record in recommended:
             archive.data.steps.append(
-                make_step_instance(step_def, record, field_specs, recommended=True)
+                make_step_instance(step_def, record, field_specs, finished=False)
             )

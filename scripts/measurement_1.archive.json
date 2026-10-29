@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "entry_name": "Spin coating measurement 1",
+    "comment": "Synthetic measurement generated from a spin coating model."
+  },
+  "data": {
+    "m_def": "nomad_bayesian_optimization.schema_packages.spin_coating.SpinCoating",
+    "precursor_concentration": 1.0,
+    "spin_coating_speed": 1000.0,
+    "spinning_time": 30.0,
+    "film_thickness": 647.2
+  }
+}

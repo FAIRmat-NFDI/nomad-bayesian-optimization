@@ -62,3 +62,20 @@ def test_seed_campaign_empty_records():
     campaign = _FakeCampaign()
     assert seed_campaign(campaign, []) == 0
     assert campaign.measurements.empty
+
+
+def test_seed_campaign_ignores_entry_id_when_deduping():
+    """Records are deduped by value, so a measurement recorded without an entry ID
+    is not added again, while new records keep their entry ID."""
+    campaign = _FakeCampaign()
+    seed_campaign(campaign, [{'mass': 1.0, 'yield': 60.0}])
+
+    added = seed_campaign(
+        campaign,
+        [
+            {'mass': 1.0, 'yield': 60.0, 'entry_id': 'e1'},
+            {'mass': 2.0, 'yield': 75.0, 'entry_id': 'e2'},
+        ],
+    )
+    assert added == 1
+    assert campaign.measurements['entry_id'].tolist()[-1] == 'e2'

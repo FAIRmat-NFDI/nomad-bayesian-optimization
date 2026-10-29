@@ -127,7 +127,7 @@ def test_iter_matching_data_sections_finds_matches():
             upload, context, 'MySample', logger=logging.getLogger('t')
         )
     )
-    assert matched == [sample]
+    assert matched == [('e1', sample)]
 
 
 def test_iter_matching_data_sections_warns_when_nothing_matches(caplog):

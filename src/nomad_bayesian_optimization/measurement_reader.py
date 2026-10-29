@@ -24,6 +24,11 @@ if TYPE_CHECKING:
 
 _default_logger = logging.getLogger(__name__)
 
+# Record column holding the ID of the entry a measurement was read from. BayBE keeps
+# such extra columns in the campaign measurements, so the ID ends up in the
+# persisted campaign and each recorded step can be traced back to its entry.
+ENTRY_ID_COLUMN = 'entry_id'
+
 
 def _get_logger(logger: Any) -> Any:
     """Return the given logger, or a module-level default when none is passed."""
@@ -176,7 +181,7 @@ def iter_matching_data_sections(
     entry_ids: list[str] | None = None,
     logger: Any = None,
 ):
-    """Yield the ``data`` section of every entry that matches ``schema_name``.
+    """Yield ``(entry_id, data_section)`` for every entry that matches ``schema_name``.
 
     Shared by :func:`read_measurement_records` and :func:`resolve_field_metadata`.
     Unlike the previous silent implementation, load failures are logged (not
@@ -214,7 +219,7 @@ def iter_matching_data_sections(
             continue
         if _matches_schema(data_section, schema_name):
             matched += 1
-            yield data_section
+            yield entry.entry_id, data_section
         else:
             seen.update(_schema_candidates(data_section))
 
@@ -251,7 +256,7 @@ def resolve_field_metadata(
     context = ServerContext(upload)
 
     section_def = None
-    for data_section in iter_matching_data_sections(
+    for _, data_section in iter_matching_data_sections(
         upload, context, schema_name, logger=logger
     ):
         section_def = data_section.m_def
@@ -305,7 +310,8 @@ def read_measurement_records(
         logger: Optional logger (e.g. the Temporal ``activity.logger``).
 
     Returns:
-        A list of records keyed by variable/target ``name``.
+        A list of records keyed by variable/target ``name``, each also holding the
+        ID of its entry under :data:`ENTRY_ID_COLUMN`.
     """
     check_authorized(upload, user_id)
     logger = _get_logger(logger)
@@ -315,11 +321,12 @@ def read_measurement_records(
     context = ServerContext(upload)
 
     records: list[dict[str, Any]] = []
-    for data_section in iter_matching_data_sections(
+    for entry_id, data_section in iter_matching_data_sections(
         upload, context, schema_name, entry_ids=entry_ids, logger=logger
     ):
         record = extract_record(data_section, variables, targets)
         if record is not None:
+            record[ENTRY_ID_COLUMN] = entry_id
             records.append(record)
 
     if not records:
